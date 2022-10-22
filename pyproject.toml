@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "ai_papers_searcher"
+version = "0.1.0"
+description = "Web app to search papers by keywords or similar papers"
+authors = ["George Araujo <george.gcac@gmail.com>"]
+license = "BSD-3"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+Flask = "^2.2.2"
+flask-paginate = "^2022.1.8"
+gunicorn = "^20.1.0"
+numpy = "^1.23.4"
+pandas = "^1.5.1"
+pyarrow = "^9.0.0"
+scipy = "^1.9.3"
+Cython = "^0.29.32"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

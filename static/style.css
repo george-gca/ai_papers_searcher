@@ -1,0 +1,35 @@
+.p-5 {
+    margin-left: auto;
+    margin-right: auto;
+    min-width: 400px;
+    width: 70%;
+    max-width: 1600px;
+}
+.card-header {
+    letter-spacing: 0.3px;
+}
+.text-muted {
+    margin-left: 10px;
+}
+.badge {
+    font-size: 16px;
+}
+.btn-sm {
+    font-size: 14px;
+}
+.abstract {
+    font-family: Georgia;
+    font-size: 18px;
+    letter-spacing: 0.3px;
+    line-height: 32px;
+    word-wrap: break-word;
+}
+.pagination {
+    margin-top: 10px;
+}
+svg {
+    color: white;
+    display: inline-block;
+    fill: currentColor;
+    width: 14px;
+}

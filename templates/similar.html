@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<p><a href="/" class="btn btn-primary">
+        << Back to find by keywords</a>
+</p>
+<p>
+<div class="card bg-dark text-white">
+    <h5 class="card-header"><span class="float-left">{{ paper.title }}</span>
+        <span class="float-right"><span class="badge badge-info">{{ paper.conference }}</span>
+            <span class="badge badge-primary">{{ paper.year }}</span></span></h5>
+    <div class="card-body">
+        <button class="btn btn-sm btn-dark collapsed" data-toggle="collapse"
+            data-target="#collapseAbstract{{paper.identification}}" aria-expanded="false"
+            aria-controls="collapseAbstract">
+            <i class="fas fa-file-alt"></i> Show abstract
+        </button>
+        <a href="{{ paper.abstract_url }}" target="_blank" class="btn btn-sm btn-dark"><i
+                class="fas fa-plus-square"></i> More
+            info</a>
+        <a href="{{ paper.pdf_url }}" target="_blank" class="btn btn-sm btn-dark"><i
+                class="fas fa-file-pdf"></i> Open PDF</a>
+
+        <div id="collapseAbstract{{paper.identification}}" class="collapse" aria-labelledby="collapseAbstract"
+            data-parent="#accordion">
+            </br>
+            <div>
+                {{paper.abstract}}
+            </div>
+        </div>
+    </div>
+</div>
+</p>
+{% endblock %}

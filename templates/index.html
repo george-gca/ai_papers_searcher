@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<!-- Form for input keywords -->
+<form action="/">
+    <div class="form-group row">
+        <label for="keywords" class="col-form-label">Keywords</label>
+        <div class="col-sm-9">
+            <input type="text" class="form-control" name="keywords" id="keywords" aria-describedby="keywords"
+                placeholder="E.g.: object detection, transfer learning, or super resolution" value="{{ search }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+<hr />
+{% endblock %}

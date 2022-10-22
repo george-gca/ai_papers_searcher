@@ -1,0 +1,6 @@
+runtime: python310
+entrypoint: gunicorn -b :$PORT main:app
+handlers:
+- url: /favicon.png
+  static_files: static/images/favicon.png
+  upload: static/images/favicon.png

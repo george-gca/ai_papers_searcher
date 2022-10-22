@@ -1,0 +1,92 @@
+<p>
+<div class="card">
+    <h5 class="card-header">
+        <span class="float-left">{{ paper.title }}
+            {% if paper.score > 0 %}
+            <span class="text-muted"><small>Score:
+                    {{'%0.3f'| format(paper.score|float)}}</small></span>
+            {% endif %}
+        </span>
+    </h5>
+
+    <div class="card-body">
+        <button class="btn btn-sm btn-dark collapsed mr-1" data-toggle="collapse"
+            data-target="#collapseAbstract{{paper.identification}}" aria-expanded="false"
+            aria-controls="collapseAbstract">
+            <i class="fas fa-file-alt mr-1"></i> Show abstract
+        </button>
+        <a href="{{ paper.abstract_url }}" target="_blank" class="btn btn-sm btn-dark mr-1"><i
+                class="fas fa-plus-square mr-1"></i> More info</a>
+        {% if paper.pdf_url and paper.pdf_url|length > 0 %}
+            <a href="{{ paper.pdf_url }}" target="_blank" class="btn btn-sm btn-dark mr-1">
+                <i class="fas fa-file-pdf mr-1"></i> Open PDF</a>
+        {% endif %}
+        <a href="https://www.mendeley.com/import/?url={{ paper.abstract_url }}" target="_blank" role="button"
+            class="btn btn-sm btn-dark mr-1">
+            <i class="fab fa-mendeley mr-1"></i> Add to Mendeley</a>
+        <a href="/find_similar_papers?paper_id={{ paper.identification }}" class="btn btn-sm btn-dark mr-1">
+            <i class="fas fa-angle-double-right"></i> Find similar paper</a>
+
+        </br>
+        </br>
+
+        <a href="https://paperswithcode.com/search?q_meta=&q_type=&q={{ paper.title }}" target="_blank" role="button"
+            class="btn btn-sm btn-outline-light mr-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
+            title="Search on Papers With Code">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                <path d="M88 128h48v256H88zm144 0h48v256h-48zm-72 16h48v224h-48zm144 0h48v224h-48zm72-16h48v256h-48z">
+                </path>
+                <path d="M104 104V56H16v400h88v-48H64V104zm304-48v48h40v304h-40v48h88V56z"></path>
+            </svg></a>
+        <a href="https://scholar.google.com/scholar?q={{ paper.title }}" target="_blank" role="button"
+            class="btn btn-sm btn-outline-light mr-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
+            title="Search on Google Scholar">
+            <i class="ai ai-google-scholar"></i></a>
+        <a href="https://www.semanticscholar.org/search?q={{ paper.title }}" target="_blank" role="button"
+            class="btn btn-sm btn-outline-light mr-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
+            title="Search on Semantic Scholar">
+            <i class="ai ai-semantic-scholar"></i></a>
+        <a href="https://www.connectedpapers.com/search?q={{ paper.title }}" target="_blank" role="button"
+            class="btn btn-sm btn-outline-light mr-1" data-bs-toggle="tooltip" data-bs-placement="bottom"
+            title="Search on Connected Papers">
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M28.0537 22.0888L25.8211 15.0834L26.4328 14.9302L28.6655 21.9356L28.0537 22.0888Z"></path>
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M18.254 23.1579L23.2987 14.3158L23.8462 14.6291L18.8015 23.4712L18.254 23.1579Z"></path>
+                <path
+                    d="M30.8658 21.8947C30.8658 23.29 29.7365 24.4211 28.3434 24.4211C26.9504 24.4211 25.8211 23.29 25.8211 21.8947C25.8211 20.4995 26.9504 19.3684 28.3434 19.3684C29.7365 19.3684 30.8658 20.4995 30.8658 21.8947Z">
+                </path>
+                <path
+                    d="M22.0375 26.9474C22.0375 29.7379 19.7789 32 16.9928 32C14.2067 32 11.9481 29.7379 11.9481 26.9474C11.9481 24.1569 14.2067 21.8947 16.9928 21.8947C19.7789 21.8947 22.0375 24.1569 22.0375 26.9474Z">
+                </path>
+                <path
+                    d="M28.8477 11.7895C28.8477 13.8823 27.1537 15.5789 25.0641 15.5789C22.9745 15.5789 21.2806 13.8823 21.2806 11.7895C21.2806 9.69661 22.9745 8 25.0641 8C27.1537 8 28.8477 9.69661 28.8477 11.7895Z">
+                </path>
+            </svg></a>
+
+        <span class="float-right">
+            {% if paper.conference and paper.conference|length > 0 %}
+                <a href="/find_conf_or_year?conference={{ paper.conference }}" class="badge badge-info">{{ paper.conference }}</a>
+            {% endif %}
+            <a href="/find_conf_or_year?year={{ paper.year }}" class="badge badge-primary">{{ paper.year }}</a>
+        </span>
+
+        <div id="collapseAbstract{{paper.identification}}" class="collapse" aria-labelledby="collapseAbstract"
+            data-parent="#accordion">
+            </br>
+            <div class="abstract">
+                {{paper.abstract}}
+            </div>
+            </br>
+            {% for paper_url in paper.urls %}
+            {% if 'github' in paper_url or 'gitlab' in paper_url %}
+            <a href="{{ paper_url }}" target="_blank" class="btn btn-sm btn-dark"><i class="fab fa-github"></i></a>
+            {% else %}
+            <a href="{{ paper_url }}" target="_blank" class="btn btn-sm btn-dark"><i
+                    class="fas fa-external-link-alt"></i></a>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
