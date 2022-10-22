@@ -1,6 +1,6 @@
 # AI Papers Searcher
 
-Web app to search papers by keywords or similar papers. Based on [CVPR_paper_search_tool by Jin Yamanaka](https://github.com/jiny2001/CVPR_paper_search_tool). I decided to split the code into multiple projects:
+Web app to search papers by keywords or similar papers. Based on [CVPR_paper_search_tool by Jin Yamanaka](https://github.com/jiny2001/CVPR_paper_search_tool). You can see a running example [here](https://georgegca.pythonanywhere.com/). I decided to split the code into multiple projects:
 
 - [AI Papers Scrapper](https://github.com/george-gca/ai_papers_scrapper) - Download papers pdfs and other information from main AI conferences
 - [AI Papers Cleaner](https://github.com/george-gca/ai_papers_cleaner) - Extract text from papers PDFs and abstracts, and remove uninformative words
