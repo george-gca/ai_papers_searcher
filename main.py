@@ -431,7 +431,7 @@ if __name__ == '__main__':
     stderr_formatter = logging.Formatter('{message}', style='{')
     stderr_handler.setFormatter(stderr_formatter)
 
-    # add the handler to the _root logger
+    # add the handler to the root logger
     logging.basicConfig(level=logging.INFO, handlers=[stderr_handler])
 
     # This is used when running locally only. When deploying to Google App
