@@ -31,7 +31,6 @@ RUN PIP_INSTALL="pip --no-cache-dir install --upgrade" && \
         pip \
         wheel && \
     $PIP_INSTALL \
-        cython \
         flask \
         flask-paginate \
         gunicorn \
