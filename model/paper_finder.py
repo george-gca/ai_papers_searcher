@@ -69,11 +69,21 @@ class PaperFinder:
         return tuple(result), len(result)
 
     @lru_cache
-    def _find_by_keywords(self, keywords: Tuple[str], count: int = 0, similars: int = 5, conference: str = '', year: int = 0, exclude_keywords: Tuple[str] = None, search_str: Optional[str] = None) -> Tuple[Tuple[int], int, npt.ArrayLike]:
+    def _find_by_keywords(
+        self,
+        keywords: Tuple[str],
+        count: int = 0,
+        similars: int = 5,
+        conference: str = '',
+        year: int = 0,
+        exclude_keywords: Tuple[str] = None,
+        search_str: Optional[str] = None) \
+            -> Tuple[Tuple[int], int, Union[None, npt.ArrayLike]]:
+
         if count <= 0:
             count = self.n_papers
         if len(keywords) == 0:
-            return (), 0
+            return (), 0, None
 
         keywords = [k.lower() for k in keywords]
         self.logger.info(f'Keywords to search for: {keywords}')
@@ -234,7 +244,18 @@ class PaperFinder:
         result, len_result = self._find_by_conference_and_year(conference, year, count)
         return result[offset:offset+count], len_result
 
-    def find_by_keywords(self, keywords: Tuple[str], count: int = 0, similars: int = 5, conference: str = '', year: int = 0, exclude_keywords: Tuple[str] = None, offset: int = 0, search_str: Optional[str] = None) -> Tuple[List[Tuple[int, float]], int]:
+    def find_by_keywords(
+        self,
+        keywords: Tuple[str],
+        count: int = 0,
+        similars: int = 5,
+        conference: str = '',
+        year: int = 0,
+        exclude_keywords: Tuple[str] = None,
+        offset: int = 0,
+        search_str: Optional[str] = None) \
+            -> Tuple[List[Tuple[int, float]], int]:
+
         result, result_len, scores = self._find_by_keywords(keywords, count, similars, conference, year, exclude_keywords, search_str)
 
         if offset < result_len:
