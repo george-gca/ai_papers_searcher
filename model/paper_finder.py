@@ -166,7 +166,7 @@ class PaperFinder:
             abstract_score = 0
 
             # searches for whole keywords in title
-            title_score += sum((paper_title_counter[k] * v for k, v in main_keywords_dict.items() if k in paper_title_counter))
+            title_score += sum(paper_title_counter[k] * v for k, v in main_keywords_dict.items() if k in paper_title_counter)
 
             # if at least one keyword is in title
             if title_score > 0:
@@ -176,12 +176,13 @@ class PaperFinder:
                     clean_title_ngrams.update({l for l in zip(*(paper_title_split[i:] for i in range(n)))})
 
                 # give extra score depending on sequences of keywords in title
-                keywords_ngrams_in_title = [len(n) for n in clean_title_ngrams if n in ngrams]
+                # keywords_ngrams_in_title = [len(n) for n in clean_title_ngrams if n in ngrams]
                 # title_score += self.keyword_weight * sum(keywords_ngrams_in_title)
-                title_score += self.keyword_weight * len(keywords_ngrams_in_title)
+                keywords_ngrams_in_title = sum(1 for n in clean_title_ngrams if n in ngrams)
+                title_score += self.keyword_weight * keywords_ngrams_in_title
 
-                main_keywords_in_title = [w for w in keywords if w in paper_title_counter]
-                if len(main_keywords_in_title) == len(keywords):
+                main_keywords_in_title = sum(1 for w in keywords if w in paper_title_counter)
+                if main_keywords_in_title == len(keywords):
                     # gives extra score since all main keywords are in title
                     title_score += self.keyword_weight * len(keywords)
 
@@ -194,28 +195,28 @@ class PaperFinder:
                     title_score += len(self.papers[i].title) - (len(self.papers[i].title) - len(search_str))
 
             # searches for words similar to keywords in title
-            title_score += sum((paper_title_counter[k] * v for k, v in similar_words_dict.items() if k in paper_title_counter))
+            title_score += sum(paper_title_counter[k] * v for k, v in similar_words_dict.items() if k in paper_title_counter)
 
             # searches for keyword as part of word in title, weighted by how much of w is made of k
-            title_score += sum((paper_title_counter[k] * v * len(k)/len(w) for k, v in big_kw.items() for w in paper_title_counter if k in w and len(k) < len(w)))
+            title_score += sum(paper_title_counter[k] * v * len(k)/len(w) for k, v in big_kw.items() for w in paper_title_counter if k in w and len(k) < len(w))
 
             # searches in title and also abstract using weights given during training
-            abstract_score += sum((self.papers[i].abstract_freq[self.abstract_dict[k]] * v \
+            abstract_score += sum(self.papers[i].abstract_freq[self.abstract_dict[k]] * v \
                 for k, v in main_keywords_dict.items() \
-                if self.abstract_dict[k] in self.papers[i].abstract_freq))
+                if self.abstract_dict[k] in self.papers[i].abstract_freq)
 
             if abstract_score > 0:
-                main_keywords_in_abstract = [
-                    w for w in keywords if w in self.abstract_dict and
-                    self.abstract_dict[w] in self.papers[i].abstract_freq]
+                main_keywords_in_abstract = sum(
+                    1 for w in keywords if w in self.abstract_dict and
+                    self.abstract_dict[w] in self.papers[i].abstract_freq)
 
-                if len(main_keywords_in_abstract) == len(keywords):
+                if main_keywords_in_abstract == len(keywords):
                     # gives extra score since all main keywords are in abstract
                     abstract_score += self.keyword_weight * len(keywords)
 
-            abstract_score += sum((self.papers[i].abstract_freq[self.abstract_dict[k]] * v \
+            abstract_score += sum(self.papers[i].abstract_freq[self.abstract_dict[k]] * v \
                 for k, v in similar_words_dict.items() \
-                if self.abstract_dict[k] in self.papers[i].abstract_freq))
+                if self.abstract_dict[k] in self.papers[i].abstract_freq)
 
             return title_score + abstract_score
 
@@ -223,8 +224,7 @@ class PaperFinder:
             valid_indices = list(valid_indices)
             np.put(scores, valid_indices, [_calc_score(i) for i in valid_indices])
 
-        self.logger.debug(
-            f'{(scores > 0).sum():n} papers have occurrences of the keywords.')
+        self.logger.debug(f'{(scores > 0).sum():n} papers have occurrences of the keywords.')
         indices = np.argsort(-scores)
 
         result = tuple(takewhile(lambda x: scores[x] > 0, indices))
@@ -401,3 +401,4 @@ class PaperFinder:
             self.model_dir / f'papers_with_words{suffix}', papers_with_words)
 
         self.logger.info(f'Saved {self.n_papers:n} papers info.')
+
