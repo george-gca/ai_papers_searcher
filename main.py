@@ -251,12 +251,21 @@ def _recreate_url(url_str: str, conference: str, year: int, is_abstract: bool = 
             return f'https://dl.acm.org/doi/abs/{url_str}'
 
     elif conference_lower == 'neurips':
-        if is_abstract:
-            url_type = 'hash'
-        else:
-            url_type = 'file'
+        if year == 2022:
+            if is_abstract:
+                url_type = 'forum'
+            else:
+                url_type = 'pdf'
 
-        return f'https://papers.nips.cc/paper/{year}/{url_type}/{url_str}'
+            return f'https://openreview.net/{url_type}?id={url_str}'
+
+        else:
+            if is_abstract:
+                url_type = 'hash'
+            else:
+                url_type = 'file'
+
+            return f'https://papers.nips.cc/paper/{year}/{url_type}/{url_str}'
 
     elif conference_lower == 'sigchi':
         return f'https://dl.acm.org/doi/abs/{url_str}'
