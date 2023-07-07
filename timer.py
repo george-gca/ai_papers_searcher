@@ -49,7 +49,7 @@ class Timer(ContextDecorator):
             try:
                 from colorama import Fore
                 self.logger(f'{Fore.RED}{text.format(elapsed_time)}{Fore.RESET}')
-            except:
+            except Exception:
                 self.logger(f'{text.format(elapsed_time)}')
 
         if self.name:
