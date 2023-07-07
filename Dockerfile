@@ -2,7 +2,7 @@
 # ==================================================================
 
 # FROM python:latest
-FROM python:3.10
+FROM python:3.11
 
 ARG GROUPID=901
 ARG GROUPNAME=searcher
