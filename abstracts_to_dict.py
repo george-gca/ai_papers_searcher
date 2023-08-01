@@ -56,6 +56,8 @@ if __name__ == '__main__':
                         help='directory for saving the model')
     parser.add_argument('-i', '--ignore_arxiv_papers', action='store_true',
                         help='ignore papers from arXiv and without conference name when building paper vectors')
+    parser.add_argument('-y', '--year', type=int, default=2017,
+                        help='only keep papers from this year and later')
     args = parser.parse_args()
 
     abstracts = _load_abstracts(f'{args.model_dir}/abstracts.feather')
@@ -74,6 +76,13 @@ if __name__ == '__main__':
         abstracts.reset_index(drop=True, inplace=True)
 
         print(f'Papers after: {len(abstracts):n}')
+
+    print(f'Filtering papers before {args.year}')
+    print(f'Papers before: {len(abstracts):n}')
+
+    indices = abstracts[abstracts['year'] < args.year].index
+    abstracts.drop(indices, inplace=True)
+    abstracts.reset_index(drop=True, inplace=True)
 
     idx_to_word, word_to_idx = _create_abstracts_dict(abstracts)
     abstracts = _convert_abstracts_to_indices(abstracts, word_to_idx)
