@@ -62,6 +62,7 @@ if __name__ == '__main__':
 
     abstracts = _load_abstracts(f'{args.model_dir}/abstracts.feather')
 
+
     if args.ignore_arxiv_papers:
         print(f'Filtering arXiv papers')
         print(f'Papers before: {len(abstracts):n}')
@@ -77,12 +78,13 @@ if __name__ == '__main__':
 
         print(f'Papers after: {len(abstracts):n}')
 
-    print(f'Filtering papers before {args.year}')
-    print(f'Papers before: {len(abstracts):n}')
+    # TODO: do the same for other dataframes
+    # print(f'Filtering papers before {args.year}')
+    # print(f'Papers before: {len(abstracts):n}')
 
-    indices = abstracts[abstracts['year'] < args.year].index
-    abstracts.drop(indices, inplace=True)
-    abstracts.reset_index(drop=True, inplace=True)
+    # indices = abstracts[abstracts['year'] < args.year].index
+    # abstracts.drop(indices, inplace=True)
+    # abstracts.reset_index(drop=True, inplace=True)
 
     idx_to_word, word_to_idx = _create_abstracts_dict(abstracts)
     abstracts = _convert_abstracts_to_indices(abstracts, word_to_idx)
