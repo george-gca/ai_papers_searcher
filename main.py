@@ -179,7 +179,7 @@ def _handle_filters(keywords: List[str]) -> Tuple[Tuple[str], str, int, Tuple[st
 
 
 def _recreate_url(url_str: str, conference: str, year: int, is_abstract: bool = False) -> str:
-    if url_str == None or len(url_str) == 0:
+    if url_str is None or len(url_str) == 0:
         return url_str
 
     if url_str.startswith('http://') or url_str.startswith('https://'):
@@ -296,7 +296,15 @@ def _root():
         if len(keywords) > 0:
             with Timer(name=f'Searching for papers:\n{keywords_text}\n'):
                 found_papers, total = _paper_finder.find_by_keywords(
-                    keywords, similars=SIMILAR_WORDS_IN_SEARCH, conference=conference, year=year, exclude_keywords=exclude_keywords, count=per_page, offset=offset, search_str=keywords_text)
+                    keywords,
+                    similars=SIMILAR_WORDS_IN_SEARCH,
+                    conference=conference,
+                    year=year,
+                    exclude_keywords=exclude_keywords,
+                    count=per_page,
+                    offset=offset,
+                    search_str=keywords_text,
+                    )
 
             if total == 0:
                 # search for mispelled words and attempt to correct them
@@ -313,14 +321,21 @@ def _root():
                     keywords = tuple(possible_words)
                     with Timer(name='Searching for papers'):
                         found_papers, total = _paper_finder.find_by_keywords(
-                            keywords, similars=SIMILAR_WORDS_IN_SEARCH, conference=conference, year=year, exclude_keywords=exclude_keywords, count=per_page, offset=offset)
+                            keywords,
+                            similars=SIMILAR_WORDS_IN_SEARCH,
+                            conference=conference,
+                            year=year,
+                            exclude_keywords=exclude_keywords,
+                            count=per_page,
+                            offset=offset,
+                            )
 
             if total > 0:
                 similar_words = []
                 for keyword in keywords:
                     similar_words += [f'{w}' for _,
                                       w in _paper_finder.get_most_similar_words(keyword, SIMILAR_WORDS_IN_SEARCH)
-                                      if not w in similar_words]
+                                      if w not in similar_words]
 
                 print(
                     f'{total} papers found for search: {keywords}.'

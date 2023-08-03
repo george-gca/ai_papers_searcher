@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
 
     if args.ignore_arxiv_papers:
-        print(f'Filtering arXiv papers')
+        print('Filtering arXiv papers')
         print(f'Papers before: {len(abstracts):n}')
 
         indices = abstracts[abstracts['conference'].isin({'arxiv', 'none'})].index
