@@ -77,7 +77,7 @@ with Timer(name='Loading data'):
     _paper_finder = PaperFinder(model_dir=Path('model_data'))
     _paper_finder.load_paper_vectors(load_similar_dict=True)
     _paper_finder.load_abstracts('model_data/abstracts_mod.feather')
-    _paper_finder.load_urls('model_data/pdfs_urls.feather')
+    _paper_finder.load_urls('model_data/pdfs_urls_mod.feather')
     with gzip.open('model_data/abstracts_idx_to_word.pkl.gz', 'rb') as f:
         _abstracts_idx_to_word = pickle.load(f)
 

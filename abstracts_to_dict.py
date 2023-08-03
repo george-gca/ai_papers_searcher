@@ -61,20 +61,27 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     abstracts = _load_abstracts(f'{args.model_dir}/abstracts.feather')
-
+    paper_urls = pd.read_feather(f'{args.model_dir}/pdfs_urls.feather').dropna()
 
     if args.ignore_arxiv_papers:
         print('Filtering arXiv papers')
         print(f'Papers before: {len(abstracts):n}')
 
-        indices = abstracts[abstracts['conference'].isin({'arxiv', 'none'})].index
+        indices = abstracts[abstracts['conference'].isin({'arxiv', 'none', 'None'})].index
         abstracts.drop(indices, inplace=True)
+
+        indices = paper_urls[paper_urls['conference'].isin({'arxiv', 'none', 'None'})].index
+        paper_urls.drop(indices, inplace=True)
 
         # remove papers from conferences like 'W18-5604' and 'C18-1211', which are usually from aclanthology and are not
         # with the correct conference name
         indices = abstracts[abstracts.conference.str.contains(r'[\w][\d]{2}-[\d]{4}')].index
         abstracts.drop(indices, inplace=True)
         abstracts.reset_index(drop=True, inplace=True)
+
+        indices = paper_urls[paper_urls.conference.str.contains(r'[\w][\d]{2}-[\d]{4}')].index
+        paper_urls.drop(indices, inplace=True)
+        paper_urls.reset_index(drop=True, inplace=True)
 
         print(f'Papers after: {len(abstracts):n}')
 
@@ -85,9 +92,15 @@ if __name__ == '__main__':
     abstracts.drop(indices, inplace=True)
     abstracts.reset_index(drop=True, inplace=True)
 
+    paper_urls['year'] = paper_urls['year'].astype('int')
+    indices = paper_urls[paper_urls['year'] < args.year].index
+    paper_urls.drop(indices, inplace=True)
+    paper_urls.reset_index(drop=True, inplace=True)
+
     print(f'Papers after: {len(abstracts):n}')
 
     idx_to_word, word_to_idx = _create_abstracts_dict(abstracts)
     abstracts = _convert_abstracts_to_indices(abstracts, word_to_idx)
     _save_object(f'{args.model_dir}/abstracts_idx_to_word', idx_to_word)
     abstracts.to_feather(f'{args.model_dir}/abstracts_mod.feather', compression='zstd')
+    paper_urls.to_feather(f'{args.model_dir}/pdfs_urls_mod.feather', compression='zstd')
