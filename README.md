@@ -13,7 +13,7 @@ I also added support for more conferences in a single web app, customized it a l
 
 [Docker](https://www.docker.com/) or, for local installation:
 
-- Python 3.10+
+- Python 3.11+
 - [Poetry](https://python-poetry.org/docs/)
 
 ## Usage
