@@ -4,7 +4,7 @@ if [[ $HOSTNAME != "docker-"* ]] && (hash poetry 2>/dev/null); then
     run_command="poetry run"
 fi
 
-create_abstracts_dict=1
+# create_abstracts_dict=1
 
 if [ -n "$create_abstracts_dict" ]; then
     echo "Creating abstracts dictionary"
