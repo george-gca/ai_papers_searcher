@@ -175,7 +175,7 @@ def _handle_filters(keywords: List[str]) -> Tuple[Tuple[str], str, int, Tuple[st
         else:
             new_keywords.append(keyword)
 
-    return tuple(new_keywords), conference, year, tuple(exclude_keywords)
+    return tuple(new_keywords), conference, year, tuple(exclude_keywords) if len(exclude_keywords) > 0 else None
 
 
 def _recreate_url(url_str: str, conference: str, year: int, is_abstract: bool = False) -> str:
@@ -294,67 +294,103 @@ def _root():
         keywords, conference, year, exclude_keywords = _handle_filters(keywords)
 
         if len(keywords) > 0:
-            with Timer(name=f'Searching for papers:\n{keywords_text}\n'):
-                found_papers, total = _paper_finder.find_by_keywords(
-                    keywords,
-                    similars=SIMILAR_WORDS_IN_SEARCH,
-                    conference=conference,
-                    year=year,
-                    exclude_keywords=exclude_keywords,
-                    count=per_page,
-                    offset=offset,
-                    search_str=keywords_text,
-                    )
+            if all(k.isalnum() or k == '_' for k in keywords):
+                # if keywords are all alphanumeric or spaces, search for papers using regular search
+                with Timer(name=f'Searching for papers:\n{keywords_text}\n'):
+                    found_papers, total = _paper_finder.find_by_keywords(
+                        keywords,
+                        similars=SIMILAR_WORDS_IN_SEARCH,
+                        conference=conference,
+                        year=year,
+                        exclude_keywords=exclude_keywords,
+                        count=per_page,
+                        offset=offset,
+                        search_str=keywords_text,
+                        )
 
-            if total == 0:
-                # search for mispelled words and attempt to correct them
-                possible_words = []
-                for word in keywords:
-                    close_matches = get_close_matches(
-                        word, _paper_finder.similar_words.keys(), cutoff=0.9)
-                    if len(close_matches) > 0:
-                        possible_words.append(close_matches[0])
+                if total == 0:
+                    # search for mispelled words and attempt to correct them
+                    possible_words = []
+                    for word in keywords:
+                        close_matches = get_close_matches(
+                            word, _paper_finder.similar_words.keys(), cutoff=0.9)
+                        if len(close_matches) > 0:
+                            possible_words.append(close_matches[0])
 
-                if len(possible_words) > 0:
+                    if len(possible_words) > 0:
+                        print(
+                            f'No papers found for search: {keywords}. Trying with similar words: {possible_words}')
+                        keywords = tuple(possible_words)
+                        with Timer(name='Searching for papers'):
+                            found_papers, total = _paper_finder.find_by_keywords(
+                                keywords,
+                                similars=SIMILAR_WORDS_IN_SEARCH,
+                                conference=conference,
+                                year=year,
+                                exclude_keywords=exclude_keywords,
+                                count=per_page,
+                                offset=offset,
+                                )
+
+                if total > 0:
+                    similar_words = []
+                    for keyword in keywords:
+                        similar_words += [f'{w}' for _,
+                                        w in _paper_finder.get_most_similar_words(keyword, SIMILAR_WORDS_IN_SEARCH)
+                                        if w not in similar_words]
+
                     print(
-                        f'No papers found for search: {keywords}. Trying with similar words: {possible_words}')
-                    keywords = tuple(possible_words)
-                    with Timer(name='Searching for papers'):
-                        found_papers, total = _paper_finder.find_by_keywords(
-                            keywords,
-                            similars=SIMILAR_WORDS_IN_SEARCH,
-                            conference=conference,
-                            year=year,
-                            exclude_keywords=exclude_keywords,
-                            count=per_page,
-                            offset=offset,
-                            )
+                        f'{total} papers found for search: {keywords}.'
+                        f' Also using {len(similar_words)} similar words {similar_words} in search')
 
-            if total > 0:
-                similar_words = []
-                for keyword in keywords:
-                    similar_words += [f'{w}' for _,
-                                      w in _paper_finder.get_most_similar_words(keyword, SIMILAR_WORDS_IN_SEARCH)
-                                      if w not in similar_words]
+                    search_result = [
+                        _create_paper_search_result(r[0], r[1]) for r in found_papers
+                    ]
 
-                print(
-                    f'{total} papers found for search: {keywords}.'
-                    f' Also using {len(similar_words)} similar words {similar_words} in search')
-
-                search_result = [
-                    _create_paper_search_result(r[0], r[1]) for r in found_papers
-                ]
-
+                else:
+                    possible_words = []
+                    for word in keywords:
+                        possible_words += get_close_matches(
+                            word, _paper_finder.similar_words.keys())
+                    possible_words = [w.replace('_', ' ') for w in possible_words]
+                    message = f'No papers found for search: {keywords_text}. Did you mean: {", ".join(possible_words)}?'
+                    print(
+                        f'No papers found for search: {keywords_text}. Did you mean: {", ".join(possible_words)}?')
+                    search_result = []
             else:
-                possible_words = []
-                for word in keywords:
-                    possible_words += get_close_matches(
-                        word, _paper_finder.similar_words.keys())
-                possible_words = [w.replace('_', ' ') for w in possible_words]
-                message = f'No papers found for search: {keywords_text}. Did you mean: {", ".join(possible_words)}?'
-                print(
-                    f'No papers found for search: {keywords_text}. Did you mean: {", ".join(possible_words)}?')
-                search_result = []
+                # if any keyword is not alphanumeric, search using regex in title
+                clean_search_text = keywords_text
+                if len(conference) > 0:
+                    clean_search_text = re.sub(fr'(\s|^)\#{conference}\b', '', clean_search_text, flags=re.I)
+
+                if year > 0:
+                    clean_search_text = re.sub(fr'(\s|^)\#{year}\b', '', clean_search_text, flags=re.I)
+
+                if exclude_keywords is not None and len(exclude_keywords) > 0:
+                    clean_search_text = re.sub('|'.join([fr'(\s|^)\-{e}\b' for e in exclude_keywords]), '', clean_search_text, flags=re.I)
+
+                clean_search_text = clean_search_text.strip()
+
+                with Timer(name=f'Searching for papers:\n{keywords_text}\n'):
+                    found_papers, total = _paper_finder.find_by_regex(
+                        clean_search_text,
+                        conference=conference,
+                        year=year,
+                        exclude_keywords=exclude_keywords,
+                        count=per_page,
+                        offset=offset,
+                        )
+
+                if total > 0:
+                    search_result = [
+                        _create_paper_search_result(i, 0) for i in found_papers
+                    ]
+
+                else:
+                    message = f'No papers found for search: {keywords_text}.'
+                    print(f'No papers found for search: {keywords_text}.')
+                    search_result = []
+
         elif len(conference) > 0 or year > 0:
             # show all papers in conference and/or year
             found_papers, total = _paper_finder.find_by_conference_and_year(

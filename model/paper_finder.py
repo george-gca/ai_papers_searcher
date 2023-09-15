@@ -1,11 +1,12 @@
 import gzip
-from itertools import takewhile
 import logging
 import pickle
 import pickletools
+import re
 from collections import defaultdict, Counter
 from copy import deepcopy
 from functools import lru_cache
+from itertools import takewhile
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -41,7 +42,13 @@ class PaperFinder:
         self.similar_words: Dict[str, List[Tuple[float, str]]] = None
 
     @lru_cache
-    def _find_by_conference_and_year(self, conference: str = '', year: int = 0, count: int = 0) -> Tuple[Tuple[int], int]:
+    def _find_by_conference_and_year(
+            self,
+            conference: str = '',
+            year: int = 0,
+            count: int = 0,
+            ) -> Tuple[Tuple[int, ...], int]:
+
         if len(conference) > 0 and year > 0:
             if not conference.startswith('-'):
                 result = self.abstracts[(self.abstracts.conference == conference) & (
@@ -71,15 +78,15 @@ class PaperFinder:
 
     @lru_cache
     def _find_by_keywords(
-        self,
-        keywords: Tuple[str],
-        count: int = 0,
-        similars: int = 5,
-        conference: str = '',
-        year: int = 0,
-        exclude_keywords: Tuple[str] = None,
-        search_str: Optional[str] = None) \
-            -> Tuple[Tuple[int], int, Union[None, npt.ArrayLike]]:
+            self,
+            keywords: Tuple[str, ...],
+            count: int = 0,
+            similars: int = 5,
+            conference: str = '',
+            year: int = 0,
+            exclude_keywords: Optional[Tuple[str, ...]] = None,
+            search_str: Optional[str] = None,
+            ) -> Tuple[Tuple[int, ...], int, Union[None, npt.ArrayLike]]:
 
         if count <= 0:
             count = self.n_papers
@@ -235,6 +242,51 @@ class PaperFinder:
         result_len = len(result)
         return result, result_len, scores
 
+    @lru_cache
+    def _find_by_regex(
+            self,
+            regex: str,
+            conference: str = '',
+            year: int = 0,
+            exclude_keywords: Optional[Tuple[str, ...]] = None,
+            count: int = 0,
+            ) -> Tuple[Tuple[int, ...], int]:
+
+        if len(conference) > 0 and year > 0:
+            if not conference.startswith('-'):
+                result = self.abstracts[(self.abstracts.conference == conference) & (
+                    self.abstracts.year == year)]
+            else:
+                conference = conference[1:]
+                result = self.abstracts[(self.abstracts.conference != conference) & (
+                    self.abstracts.year == year)]
+            result = result.sort_values(by='year', ascending=False)
+        elif len(conference) > 0:
+            if not conference.startswith('-'):
+                result = self.abstracts[self.abstracts.conference == conference]
+            else:
+                conference = conference[1:]
+                result = self.abstracts[self.abstracts.conference != conference]
+            result = result.sort_values(by='year', ascending=False)
+        elif year > 0:
+            result = self.abstracts[self.abstracts.year == year]
+            result = result.sort_values(by='conference')
+        else:
+            result = self.abstracts
+
+        result = result[result.title.str.contains(regex, case=False, regex=True) |
+                        result.abstract.str.contains(regex, case=False, regex=True)]
+
+        if exclude_keywords is not None:
+            exclude_regex = '|'.join([fr'\b{e}\b' for e in exclude_keywords])
+            result = result[~result.title.str.contains(exclude_regex, case=False, regex=True) &
+                            ~result.abstract.str.contains(exclude_regex, case=False, regex=True)]
+
+        result = result.index
+        if count <= 0:
+            count = len(result)
+        return tuple(result), len(result)
+
     def _load_object(self, name: Union[str, Path]) -> object:
         with Timer(f'Loading {name}'):
             with gzip.open(f'{name}.pkl.gz', 'rb') as f:
@@ -259,12 +311,12 @@ class PaperFinder:
 
     def find_by_keywords(
         self,
-        keywords: Tuple[str],
+        keywords: Tuple[str, ...],
         count: int = 0,
         similars: int = 5,
         conference: str = '',
         year: int = 0,
-        exclude_keywords: Tuple[str] = None,
+        exclude_keywords: Tuple[str, ...] = None,
         offset: int = 0,
         search_str: Optional[str] = None) \
             -> Tuple[List[Tuple[int, float]], int]:
@@ -281,6 +333,18 @@ class PaperFinder:
             result = []
 
         return result, result_len
+
+    def find_by_regex(
+            self,
+            regex: str,
+            conference: str = '',
+            year: int = 0,
+            exclude_keywords: Tuple[str, ...] = None,
+            count: int = 0,
+            offset: int = 0,
+            ) -> Tuple[List[Tuple[int, float]], int]:
+        result, len_result = self._find_by_regex(regex, conference, year, exclude_keywords, count)
+        return result[offset:offset+count], len_result
 
     def find_by_paper_title(self, title: str) -> int:
         title = title.lower()
