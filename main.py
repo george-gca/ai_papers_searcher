@@ -14,6 +14,7 @@ from model.paper_finder import PaperFinder
 from timer import Timer
 
 
+CONVERT_ABSTRACTS_TO_WORDS = True # allow searching with regex
 SIMILAR_PAPER_LIMIT = 100
 SIMILAR_WORDS_IN_SEARCH = 5
 TITLE = 'AI'
@@ -70,8 +71,9 @@ class PaperSearchResult:
 # https://medium.com/swlh/how-to-host-your-flask-app-on-pythonanywhere-for-free-df8486eb6a42
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
-_logger = logging.getLogger(__name__)
+# _logger = logging.getLogger(__name__)
 app = Flask(__name__)
+
 
 with Timer(name='Loading data'):
     _paper_finder = PaperFinder(model_dir=Path('model_data'))
@@ -81,6 +83,7 @@ with Timer(name='Loading data'):
     with gzip.open('model_data/abstracts_idx_to_word.pkl.gz', 'rb') as f:
         _abstracts_idx_to_word = pickle.load(f)
 
+
 assert len(_paper_finder.papers) == len(_paper_finder.abstracts), \
     f'papers vectors have {len(_paper_finder.papers)} items, while abstracts have {len(_paper_finder.abstracts)}'
 
@@ -88,6 +91,12 @@ assert len(_paper_finder.papers) == len(_paper_finder.abstracts), \
 def _abstract_idxs_to_words(abstract: str) -> str:
     indices = [int(i) for i in abstract.split()]
     return ' '.join([_abstracts_idx_to_word[i] for i in indices])
+
+
+if CONVERT_ABSTRACTS_TO_WORDS:
+    with Timer(name='Converting abstracts to words'):
+        # convert abstracts from indices to words
+        _paper_finder.abstracts.abstract = _paper_finder.abstracts.abstract.apply(_abstract_idxs_to_words)
 
 
 def _create_paper_search_result(paper_id: int, score: float) -> PaperSearchResult:
@@ -100,7 +109,10 @@ def _create_paper_search_result(paper_id: int, score: float) -> PaperSearchResul
     if len(paper_urls) > 0:
         paper_urls = paper_urls[0].split()
 
-    abstract = _abstract_idxs_to_words(_paper_finder.abstracts.iloc[paper_id].abstract)
+    if CONVERT_ABSTRACTS_TO_WORDS:
+        abstract = _paper_finder.abstracts.iloc[paper_id].abstract
+    else:
+        abstract = _abstract_idxs_to_words(_paper_finder.abstracts.iloc[paper_id].abstract)
 
     return PaperSearchResult(identification=paper_id, score=score,
                              title=_paper_finder.papers[paper_id].title,
@@ -176,6 +188,14 @@ def _handle_filters(keywords: List[str]) -> Tuple[Tuple[str], str, int, Tuple[st
             new_keywords.append(keyword)
 
     return tuple(new_keywords), conference, year, tuple(exclude_keywords) if len(exclude_keywords) > 0 else None
+
+
+def _has_regex(keywords_text: str) -> bool:
+    # if CONVERT_ABSTRACTS_TO_WORDS is False, abstract will be composed of indices to words, so regex search is not possible
+    if keywords_text is None or len(keywords_text) == 0 or keywords_text.isalnum() or not CONVERT_ABSTRACTS_TO_WORDS:
+        return False
+
+    return any(not c.isalnum() and c not in '#_- ' for c in keywords_text)
 
 
 def _recreate_url(url_str: str, conference: str, year: int, is_abstract: bool = False) -> str:
@@ -290,16 +310,17 @@ def _root():
     message = ''
 
     if keywords_text is not None:
+        print(f'Search string: {keywords_text}')
         keywords = _define_keywords(keywords_text)
         keywords, conference, year, exclude_keywords = _handle_filters(keywords)
 
         if len(keywords) > 0:
-            if all(k.isalnum() or k == '_' for k in keywords):
+            if not _has_regex(keywords_text):
                 # if keywords are all alphanumeric or spaces, search for papers using regular search
-                with Timer(name=f'Searching for papers:\n{keywords_text}\n'):
+                with Timer(name=f'Searching for papers with:\n{keywords}\n'):
                     found_papers, total = _paper_finder.find_by_keywords(
                         keywords,
-                        similars=SIMILAR_WORDS_IN_SEARCH,
+                        similar=SIMILAR_WORDS_IN_SEARCH,
                         conference=conference,
                         year=year,
                         exclude_keywords=exclude_keywords,
@@ -318,13 +339,12 @@ def _root():
                             possible_words.append(close_matches[0])
 
                     if len(possible_words) > 0:
-                        print(
-                            f'No papers found for search: {keywords}. Trying with similar words: {possible_words}')
+                        print(f'No papers found for search: {keywords}. Trying with similar words: {possible_words}')
                         keywords = tuple(possible_words)
                         with Timer(name='Searching for papers'):
                             found_papers, total = _paper_finder.find_by_keywords(
                                 keywords,
-                                similars=SIMILAR_WORDS_IN_SEARCH,
+                                similar=SIMILAR_WORDS_IN_SEARCH,
                                 conference=conference,
                                 year=year,
                                 exclude_keywords=exclude_keywords,
@@ -354,8 +374,7 @@ def _root():
                             word, _paper_finder.similar_words.keys())
                     possible_words = [w.replace('_', ' ') for w in possible_words]
                     message = f'No papers found for search: {keywords_text}. Did you mean: {", ".join(possible_words)}?'
-                    print(
-                        f'No papers found for search: {keywords_text}. Did you mean: {", ".join(possible_words)}?')
+                    print(f'No papers found for search: {keywords_text}. Did you mean: {", ".join(possible_words)}?')
                     search_result = []
             else:
                 # if any keyword is not alphanumeric, search using regex in title
@@ -371,7 +390,7 @@ def _root():
 
                 clean_search_text = clean_search_text.strip()
 
-                with Timer(name=f'Searching for papers:\n{keywords_text}\n'):
+                with Timer(name=f'Searching for papers with regex:\n{clean_search_text}\n'):
                     found_papers, total = _paper_finder.find_by_regex(
                         clean_search_text,
                         conference=conference,
@@ -383,7 +402,7 @@ def _root():
 
                 if total > 0:
                     search_result = [
-                        _create_paper_search_result(i, 0) for i in found_papers
+                        _create_paper_search_result(r[0], r[1]) for r in found_papers
                     ]
 
                 else:
