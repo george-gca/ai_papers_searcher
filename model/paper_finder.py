@@ -525,4 +525,3 @@ class PaperFinder:
             self.model_dir / f'papers_with_words{suffix}', papers_with_words)
 
         self.logger.info(f'Saved {self.n_papers:n} papers info.')
-
