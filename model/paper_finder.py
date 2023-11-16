@@ -168,7 +168,7 @@ class PaperFinder:
             year: int = 0,
             exclude_keywords: Optional[Tuple[str, ...]] = None,
             search_str: Optional[str] = None,
-            ) -> Tuple[Tuple[int, ...], int, Union[None, npt.ArrayLike]]:
+            ) -> Tuple[Tuple[int, ...], int, Union[None, Tuple[float, ...]]]:
 
         if count <= 0:
             count = self.n_papers
@@ -256,11 +256,12 @@ class PaperFinder:
             np.put(scores, valid_indices, list(
                 self._calc_score(i, keywords, main_keywords_dict, similar_words_dict, big_kw, ngrams, search_str) for i in valid_indices))
 
-        indices = np.argsort(-scores)
-        result = tuple(takewhile(lambda x: scores[x] > 0, indices))
-        result_len = len(result)
+        sorted_indices = np.argsort(-scores)
+        result_indices = tuple(takewhile(lambda x: scores[x] > 0, sorted_indices))
+        result_len = len(result_indices)
+        scores = tuple(scores[i] for i in result_indices)
         self.logger.info(f'{result_len:n} papers have occurrences of the keywords.')
-        return result, result_len, scores
+        return result_indices, result_len, scores
 
     @lru_cache
     def _find_by_regex(
@@ -270,7 +271,7 @@ class PaperFinder:
             year: int = 0,
             exclude_keywords: Optional[Tuple[str, ...]] = None,
             count: int = 0,
-            ) -> Tuple[Tuple[int, ...], int, Union[None, npt.ArrayLike]]:
+            ) -> Tuple[Tuple[int, ...], int, Union[None, Tuple[float, ...]]]:
 
         if count <= 0:
             count = self.n_papers
@@ -320,11 +321,12 @@ class PaperFinder:
             np.put(scores, valid_indices, list(
                 self._calc_regex_score(i, compiled_regex) for i in valid_indices))
 
-        indices = np.argsort(-scores)
-        result = tuple(takewhile(lambda x: scores[x] > 0, indices))
-        result_len = len(result)
-        self.logger.info(f'{result_len:n} papers have occurrences of the regex.')
-        return result, result_len, scores
+        sorted_indices = np.argsort(-scores)
+        result_indices = tuple(takewhile(lambda x: scores[x] > 0, sorted_indices))
+        result_len = len(result_indices)
+        scores = tuple(scores[i] for i in result_indices)
+        self.logger.info(f'{result_len:n} papers have occurrences of the keywords.')
+        return result_indices, result_len, scores
 
 
     def _load_object(self, name: Union[str, Path]) -> object:
@@ -366,9 +368,9 @@ class PaperFinder:
 
         if offset < result_len:
             if offset + count < result_len:
-                result = list((idx, scores[idx]) for idx in result[offset:offset+count])
+                result = list((idx, score) for idx, score in zip(result[offset:offset+count], scores[offset:offset+count]))
             else:
-                result = list((idx, scores[idx]) for idx in result[offset:])
+                result = list((idx, score) for idx, score in zip(result[offset:], scores[offset:]))
         else:
             result = []
 
@@ -383,13 +385,14 @@ class PaperFinder:
             count: int = 0,
             offset: int = 0,
             ) -> Tuple[List[Tuple[int, float]], int]:
+
         result, result_len, scores = self._find_by_regex(regex, conference, year, exclude_keywords, count)
 
         if offset < result_len:
             if offset + count < result_len:
-                result = list((idx, scores[idx]) for idx in result[offset:offset+count])
+                result = list((idx, score) for idx, score in zip(result[offset:offset+count], scores[offset:offset+count]))
             else:
-                result = list((idx, scores[idx]) for idx in result[offset:])
+                result = list((idx, score) for idx, score in zip(result[offset:], scores[offset:]))
         else:
             result = []
 
