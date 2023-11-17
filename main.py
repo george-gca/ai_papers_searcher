@@ -166,6 +166,8 @@ def _get_pagination(page: int, total: int, per_page: int = 15) -> Pagination:
         css_framework='bootstrap4',
         format_total=True,
         format_number=True,
+        # inner_window=1,
+        # outer_window=0,
     )
 
 

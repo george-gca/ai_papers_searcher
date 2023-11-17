@@ -3,13 +3,17 @@
 {% block body %}
 <!-- Form for input keywords -->
 <form action="/">
-    <div class="form-group row">
-        <label for="keywords" class="col-form-label">Keywords</label>
-        <div class="col-sm-9">
-            <input type="text" class="form-control" name="keywords" id="keywords" aria-describedby="keywords"
-                placeholder="E.g.: object detection, transfer learning, or super resolution" value="{{ search }}">
+    <div class="d-flex bd-highlight">
+        <div class="p-2 bd-highlight d-none d-sm-none d-md-none d-lg-block">
+            <label for="keywords" class="col-form-label">Keywords</label>
         </div>
-        <button type="submit" class="btn btn-primary">Search</button>
+        <div class="p-2 flex-grow-1 bd-highlight">
+            <input type="text" class="form-control" name="keywords" id="keywords" aria-describedby="keywords" placeholder="E.g.: object detection, transfer learning, or super resolution" value="{{ search }}">
+        </div>
+        <div class="p-2 bd-highlight">
+            <button type="submit" class="btn btn-primary d-none d-sm-none d-md-block" alt="Search">Search</button>
+            <button type="submit" class="btn btn-primary d-block d-sm-block d-md-none" alt="Search"><i class="fas fa-search"></i></button>
+        </div>
     </div>
 </form>
 <hr />
