@@ -59,6 +59,7 @@ SUPPORTED_CONFERENCES = {
 class PaperSearchResult:
     abstract: str
     abstract_url: str
+    arxiv_id: str
     conference: str
     identification: int
     pdf_url: str
@@ -100,12 +101,12 @@ if CONVERT_ABSTRACTS_TO_WORDS:
 
 
 def _create_paper_search_result(paper_id: int, score: float) -> PaperSearchResult:
-    conf = _paper_finder.papers[paper_id].conference
-    year = _paper_finder.papers[paper_id].year
-    assert _paper_finder.papers[paper_id].title == _paper_finder.abstracts.iloc[paper_id].title
+    paper = _paper_finder.papers[paper_id]
+    conf = paper.conference
+    year = paper.year
+    assert paper.title == _paper_finder.abstracts.iloc[paper_id].title
 
-    paper_urls = _paper_finder.paper_urls.loc[_paper_finder.paper_urls.title
-                                             == _paper_finder.papers[paper_id].title].urls.values
+    paper_urls = _paper_finder.paper_urls.loc[_paper_finder.paper_urls.title == paper.title].urls.values
     if len(paper_urls) > 0:
         paper_urls = paper_urls[0].split()
 
@@ -114,16 +115,18 @@ def _create_paper_search_result(paper_id: int, score: float) -> PaperSearchResul
     else:
         abstract = _abstract_idxs_to_words(_paper_finder.abstracts.iloc[paper_id].abstract)
 
-    return PaperSearchResult(identification=paper_id, score=score,
-                             title=_paper_finder.papers[paper_id].title,
-                             abstract_url=_recreate_url(
-                                 _paper_finder.papers[paper_id].abstract_url, conf, year, True),
-                             abstract=abstract,
-                             pdf_url=_recreate_url(
-                                 _paper_finder.papers[paper_id].pdf_url, conf, year),
-                             conference=conf,
-                             year=year,
-                             urls=paper_urls)
+    return PaperSearchResult(
+        abstract=abstract,
+        abstract_url=_recreate_url(paper.abstract_url, conf, year, True),
+        arxiv_id=paper.arxiv_id,
+        conference=conf,
+        identification=paper_id,
+        pdf_url=_recreate_url(paper.pdf_url, conf, year),
+        score=score,
+        title=paper.title,
+        urls=paper_urls,
+        year=year,
+        )
 
 
 def _define_keywords(keywords_text: str) -> List[str]:

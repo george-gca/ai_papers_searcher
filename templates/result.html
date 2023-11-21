@@ -33,7 +33,7 @@
             <span class="d-block d-sm-block d-md-none"><i class="fas fa-file-pdf"></i></span>
         </a>
         {% endif %}
-        <!-- {% if paper.arxiv_id and paper.arxiv_id|length > 0 %} -->
+        {% if paper.arxiv_id and paper.arxiv_id|length > 0 %}
         <div class="btn-group" role="group">
             <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-dark dropdown-toggle d-none d-sm-none d-md-none d-lg-block" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span><i class="fas fa-book-reader mr-2"></i>Read online</span>
@@ -58,7 +58,7 @@
                 </a>
             </div>
         </div>
-        <!-- {% endif %} -->
+        {% endif %}
         <a href="/find_similar_papers?paper_id={{ paper.identification }}" class="btn btn-sm btn-dark">
             <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fas fa-angle-double-right mr-2"></i>Find similar papers</span>
             <span class="d-none d-sm-none d-md-block d-lg-none"><i class="fas fa-angle-double-right mr-2"></i>Find similars</span>
