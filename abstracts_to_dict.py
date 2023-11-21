@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
     if args.ignore_arxiv_papers:
         print('Filtering arXiv papers')
-        print(f'Papers before: {len(abstracts):n}')
+        print(f'\tPapers before: {len(abstracts):n}')
 
         indices = abstracts[abstracts['conference'].isin({'arxiv', 'none', 'None'})].index
         abstracts.drop(indices, inplace=True)
@@ -83,10 +83,10 @@ if __name__ == '__main__':
         paper_urls.drop(indices, inplace=True)
         paper_urls.reset_index(drop=True, inplace=True)
 
-        print(f'Papers after: {len(abstracts):n}')
+        print(f'\tPapers after: {len(abstracts):n}')
 
     print(f'Filtering papers before {args.year}')
-    print(f'Papers before: {len(abstracts):n}')
+    print(f'\tPapers before: {len(abstracts):n}')
 
     indices = abstracts[abstracts['year'] < args.year].index
     abstracts.drop(indices, inplace=True)
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     paper_urls.drop(indices, inplace=True)
     paper_urls.reset_index(drop=True, inplace=True)
 
-    print(f'Papers after: {len(abstracts):n}')
+    print(f'\tPapers after: {len(abstracts):n}')
 
     idx_to_word, word_to_idx = _create_abstracts_dict(abstracts)
     abstracts = _convert_abstracts_to_indices(abstracts, word_to_idx)
