@@ -3,12 +3,11 @@ import gzip
 import pickle
 import pickletools
 from pathlib import Path
-from typing import Union
 
 import pandas as pd
 
 
-def _save_object(name: Union[str, Path], obj: object) -> None:
+def _save_object(name: str | Path, obj: object) -> None:
     with gzip.open(f'{name}.pkl.gz', 'wb') as f:
         # pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
         pickled = pickle.dumps(obj)

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Dict
 
 
 @dataclass
@@ -11,6 +10,6 @@ class PaperInfo:
     # indicates the weight of the word in this paper, being
     # key: index of word
     # value: weight of the word, associated with occurrence in title and/or abstract
-    abstract_freq: Dict[int, float] = field(default_factory=dict)
+    abstract_freq: dict[int, float] = field(default_factory=dict)
     conference: str = ''
     year: int = 0

@@ -8,7 +8,6 @@ from copy import deepcopy
 from functools import lru_cache
 from itertools import takewhile
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -26,30 +25,30 @@ class PaperFinder:
         self.abstracts: pd.DataFrame = None
         # used to store all possible words in abstracts
         # word: index
-        self.abstract_dict: Dict[str, int] = None
+        self.abstract_dict: dict[str, int] = None
         # inverted abstract_dict
         # index contains word
-        self.abstract_words: List[str] = None
+        self.abstract_words: list[str] = None
         self.keyword_weight: float = 1.5
         self.model_dir: Path = model_dir.expanduser()
         self.nearest_neighbours: KDTree = None
         self.n_papers: int = 0  # number of PaperInfos
-        self.papers: List[PaperInfo] = None
+        self.papers: list[PaperInfo] = None
         self.paper_cluster_ids: npt.ArrayLike = None
-        self.papers_with_words: Dict[str, List[int]] = None
+        self.papers_with_words: dict[str, list[int]] = None
         self.paper_urls: pd.DataFrame = None
         self.paper_vectors: npt.ArrayLike = None
-        self.similar_words: Dict[str, List[Tuple[float, str]]] = None
+        self.similar_words: dict[str, list[tuple[float, str]]] = None
 
     def _calc_score(
             self,
             i: int,
-            keywords: Tuple[str, ...],
-            main_keywords_dict: Dict[str, float],
-            similar_words_dict: Dict[str, float],
-            big_kw: Dict[str, float],
-            ngrams: Set[str],
-            search_str: Optional[str] = None,
+            keywords: tuple[str, ...],
+            main_keywords_dict: dict[str, float],
+            similar_words_dict: dict[str, float],
+            big_kw: dict[str, float],
+            ngrams: set[str],
+            search_str: None | str = None,
             ) -> float:
         paper_title_split = self.papers[i].clean_title.split()
         paper_title_counter = Counter(paper_title_split)
@@ -129,7 +128,7 @@ class PaperFinder:
             conference: str = '',
             year: int = 0,
             count: int = 0,
-            ) -> Tuple[Tuple[int, ...], int]:
+            ) -> tuple[tuple[int, ...], int]:
 
         if len(conference) > 0 and year > 0:
             if not conference.startswith('-'):
@@ -161,14 +160,14 @@ class PaperFinder:
     @lru_cache
     def _find_by_keywords(
             self,
-            keywords: Tuple[str, ...],
+            keywords: tuple[str, ...],
             count: int = 0,
             similar: int = 5,
             conference: str = '',
             year: int = 0,
-            exclude_keywords: Optional[Tuple[str, ...]] = None,
-            search_str: Optional[str] = None,
-            ) -> Tuple[Tuple[int, ...], int, Union[None, Tuple[float, ...]]]:
+            exclude_keywords: None | tuple[str, ...] = None,
+            search_str: None | str = None,
+            ) -> tuple[tuple[int, ...], int, None | tuple[float, ...]]:
 
         if count <= 0:
             count = self.n_papers
@@ -269,9 +268,9 @@ class PaperFinder:
             regex: str,
             conference: str = '',
             year: int = 0,
-            exclude_keywords: Optional[Tuple[str, ...]] = None,
+            exclude_keywords: None | tuple[str, ...] = None,
             count: int = 0,
-            ) -> Tuple[Tuple[int, ...], int, Union[None, Tuple[float, ...]]]:
+            ) -> tuple[tuple[int, ...], int, None | tuple[float, ...]]:
 
         if count <= 0:
             count = self.n_papers
@@ -329,12 +328,12 @@ class PaperFinder:
         return result_indices, result_len, scores
 
 
-    def _load_object(self, name: Union[str, Path]) -> object:
+    def _load_object(self, name: str | Path) -> object:
         with Timer(name=f'Loading {name}'):
             with gzip.open(f'{name}.pkl.gz', 'rb') as f:
                 return pickle.load(f)
 
-    def _save_object(self, name: Union[str, Path], obj: object) -> None:
+    def _save_object(self, name: str | Path, obj: object) -> None:
         with gzip.open(f'{name}.pkl.gz', 'wb') as f:
             # pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
             pickled = pickle.dumps(obj)
@@ -347,21 +346,21 @@ class PaperFinder:
             year: int = 0,
             count: int = 0,
             offset: int = 0,
-            ) -> Tuple[List[int], int]:
+            ) -> tuple[list[int], int]:
         result, len_result = self._find_by_conference_and_year(conference, year, count)
         return result[offset:offset+count], len_result
 
     def find_by_keywords(
         self,
-        keywords: Tuple[str, ...],
+        keywords: tuple[str, ...],
         count: int = 0,
         similar: int = 5,
         conference: str = '',
         year: int = 0,
-        exclude_keywords: Tuple[str, ...] = None,
+        exclude_keywords: tuple[str, ...] = None,
         offset: int = 0,
-        search_str: Optional[str] = None,
-        ) -> Tuple[List[Tuple[int, float]], int]:
+        search_str: None | str = None,
+        ) -> tuple[list[tuple[int, float]], int]:
 
         result, result_len, scores = self._find_by_keywords(
             keywords, count, similar, conference, year, exclude_keywords, search_str)
@@ -381,10 +380,10 @@ class PaperFinder:
             regex: str,
             conference: str = '',
             year: int = 0,
-            exclude_keywords: Tuple[str, ...] = None,
+            exclude_keywords: tuple[str, ...] = None,
             count: int = 0,
             offset: int = 0,
-            ) -> Tuple[List[Tuple[int, float]], int]:
+            ) -> tuple[list[tuple[int, float]], int]:
 
         result, result_len, scores = self._find_by_regex(regex, conference, year, exclude_keywords, count)
 
@@ -406,7 +405,7 @@ class PaperFinder:
 
         return -1
 
-    def find_similar_papers(self, paper_id: int, count: int = 5, offset: int = 0) -> List[Tuple[int, float]]:
+    def find_similar_papers(self, paper_id: int, count: int = 5, offset: int = 0) -> list[tuple[int, float]]:
         target_vector = self.paper_vectors[paper_id]
 
         distances, indices = self.nearest_neighbours.query(
@@ -417,7 +416,7 @@ class PaperFinder:
         results = list((int(results[0, i]), results[1, i]) for i in range(offset+1, indices.shape[0]))
         return results
 
-    def get_most_similar_words(self, target_word: str, count: int = 5) -> List[Tuple[float, str]]:
+    def get_most_similar_words(self, target_word: str, count: int = 5) -> list[tuple[float, str]]:
         if self.similar_words is not None and target_word in self.similar_words:
             return self.similar_words[target_word][:count]
         return []
@@ -455,31 +454,31 @@ class PaperFinder:
         load_similar_dict: bool = False,
         suffix: str = ''
     ) -> None:
-        self.abstract_dict: Dict[str, int] = \
+        self.abstract_dict: dict[str, int] = \
             self._load_object(self.model_dir / f'abstract_dict{suffix}')
         self.paper_vectors: npt.ArrayLike = \
             self._load_object(self.model_dir / f'paper_vectors{suffix}')
-        self.papers_with_words: Dict[str, List[int]] =  \
+        self.papers_with_words: dict[str, list[int]] =  \
             self._load_object(self.model_dir / f'papers_with_words{suffix}')
         self.nearest_neighbours: KDTree = \
             self._load_object(self.model_dir / f'nearest_neighbours{suffix}')
 
-        self.papers: List[PaperInfo] = \
+        self.papers: list[PaperInfo] = \
             self._load_object(self.model_dir / f'paper_info{suffix}')
-        abstract_freq: List[Dict[int, float]] = \
+        abstract_freq: list[dict[int, float]] = \
             self._load_object(self.model_dir / f'paper_info_freq{suffix}')
 
         for p, f in zip(self.papers, abstract_freq):
             p.abstract_freq = f
 
         if load_abstract_words:
-            self.abstract_words: List[str] = \
+            self.abstract_words: list[str] = \
                 self._load_object(self.model_dir / f'abstract_words{suffix}')
         if load_cluster_ids:
             self.paper_cluster_ids: npt.ArrayLike = \
                 self._load_object(self.model_dir / f'cluster_ids{suffix}')
         if load_similar_dict:
-            self.similar_words: Dict[str, List[Tuple[float, str]]] = \
+            self.similar_words: dict[str, list[tuple[float, str]]] = \
                 self._load_object(self.model_dir / 'similar_dictionary')
 
         self.n_papers: int = min(self.paper_vectors.shape[0], len(self.papers))
@@ -514,7 +513,7 @@ class PaperFinder:
             similar_words = set(self.words)
 
         with Timer(name='Creating dict of papers with words'):
-            papers_with_words: Dict[str, List[int]] = defaultdict(list)
+            papers_with_words: dict[str, list[int]] = defaultdict(list)
 
             for i, p in enumerate(self.papers):
                 for word_pos in p.abstract_freq:

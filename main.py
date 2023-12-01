@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from difflib import get_close_matches
 from pathlib import Path
 from string import punctuation
-from typing import List, Tuple
 
 from flask import Flask, redirect, render_template, request, url_for
 from flask_paginate import Pagination, get_page_args
@@ -60,7 +59,7 @@ class PaperSearchResult:
     pdf_url: str
     score: float
     title: str
-    urls: List[str]
+    urls: list[str]
     year: str
 
 
@@ -124,7 +123,7 @@ def _create_paper_search_result(paper_id: int, score: float) -> PaperSearchResul
         )
 
 
-def _define_keywords(keywords_text: str) -> List[str]:
+def _define_keywords(keywords_text: str) -> list[str]:
     keywords = keywords_text.strip().lower()
     keywords = keywords.replace(': ', ' ')
     keywords = keywords.replace(':', ' ')
@@ -170,7 +169,7 @@ def _get_pagination(page: int, total: int, per_page: int = 15) -> Pagination:
     )
 
 
-def _handle_filters(keywords: List[str]) -> Tuple[Tuple[str], str, int, Tuple[str]]:
+def _handle_filters(keywords: list[str]) -> tuple[tuple[str, ...], str, int, None | tuple[str, ...]]:
     conference = ''
     exclude_keywords = []
     new_keywords = []
