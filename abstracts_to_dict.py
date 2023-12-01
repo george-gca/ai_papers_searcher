@@ -43,7 +43,7 @@ def _create_abstracts_dict(abstracts: pd.DataFrame) -> dict:
 
 def _convert_abstracts_to_indices(abstracts: pd.DataFrame, word_to_idx: dict) -> pd.DataFrame:
     def words_to_indices(text):
-        return ' '.join([str(word_to_idx[w]) for w in text.split()])
+        return ' '.join(str(word_to_idx[w]) for w in text.split())
 
     abstracts['abstract'] = abstracts['abstract'].apply(words_to_indices)
     return abstracts

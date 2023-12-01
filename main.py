@@ -85,7 +85,7 @@ assert len(_paper_finder.papers) == len(_paper_finder.abstracts), \
 
 def _abstract_idxs_to_words(abstract: str) -> str:
     indices = (int(i) for i in abstract.split())
-    return ' '.join([_abstracts_idx_to_word[i] for i in indices])
+    return ' '.join(_abstracts_idx_to_word[i] for i in indices)
 
 
 if CONVERT_ABSTRACTS_TO_WORDS:
