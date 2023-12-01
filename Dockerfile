@@ -37,7 +37,8 @@ RUN PIP_INSTALL="pip --no-cache-dir install --upgrade" && \
         numpy \
         pandas \
         pyarrow \
-        scipy && \
+        scipy \
+        unidecode && \
 
 # ==================================================================
 # config & cleanup

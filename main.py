@@ -5,29 +5,24 @@ import re
 from dataclasses import dataclass
 from difflib import get_close_matches
 from pathlib import Path
+from string import punctuation
 from typing import List, Tuple
 
 from flask import Flask, redirect, render_template, request, url_for
 from flask_paginate import Pagination, get_page_args
+from unidecode import unidecode
 
 from model.paper_finder import PaperFinder
 from timer import Timer
 
 
 CONVERT_ABSTRACTS_TO_WORDS = True # allow searching with regex
+HYPHEN_REGEX = re.compile(r'([\w_]+)[\-\−\–]([\w_]+)')
+NOT_ALLOWED_CHARS = set(punctuation) - {'_', '-', '#', '/'}
 SIMILAR_PAPER_LIMIT = 100
 SIMILAR_WORDS_IN_SEARCH = 5
 TITLE = 'AI'
 
-ACCENTS = {
-    '[áàãâä]|´a|`a|\~a|\^a': 'a',
-    'ç': 'c',
-    '[éèêë]|´e|`e|\^e': 'e',
-    '[íïì]|´i|`i': 'i',
-    'ñ': 'n',
-    '[óòôö]|´o|`o|\~o|\^o': 'o',
-    '[úùü]|´u|`u': 'u',
-}
 
 SUPPORTED_CONFERENCES = {
     'aaai',
@@ -134,12 +129,10 @@ def _define_keywords(keywords_text: str) -> List[str]:
     keywords = keywords.replace(': ', ' ')
     keywords = keywords.replace(':', ' ')
     if '-' in keywords or '−' in keywords or '–' in keywords:
-        regex = re.compile('([\w_]+)[\-\−\–]([\w_]+)')
-        while regex.search(keywords) is not None:
-            keywords = regex.sub('\\1_\\2', keywords)
+        while HYPHEN_REGEX.search(keywords) is not None:
+            keywords = HYPHEN_REGEX.sub('\\1_\\2', keywords)
 
-    for k, v in ACCENTS.items():
-        keywords = re.sub(k, v, keywords)
+    keywords = unidecode(keywords)
 
     if '"' in keywords:
         while '"' in keywords:
@@ -156,7 +149,10 @@ def _define_keywords(keywords_text: str) -> List[str]:
                 f'{keywords[first_index+1:first_index+last_index+1]}' \
                 f'{keywords[first_index+last_index+2:]} {joined_words}'
 
-    keywords = re.sub('[^ \w\-#_/]', '', keywords)
+    for c in NOT_ALLOWED_CHARS:
+        if c in keywords:
+            keywords = keywords.replace(c, '')
+
     return keywords.split()
 
 
@@ -385,12 +381,15 @@ def _root():
                 # if any keyword is not alphanumeric, search using regex in title
                 clean_search_text = keywords_text
                 if len(conference) > 0:
+                    # remove conference from search text
                     clean_search_text = re.sub(fr'(\s|^)\#{conference}\b', '', clean_search_text, flags=re.I)
 
                 if year > 0:
+                    # remove year from search text
                     clean_search_text = re.sub(fr'(\s|^)\#{year}\b', '', clean_search_text, flags=re.I)
 
                 if exclude_keywords is not None and len(exclude_keywords) > 0:
+                    # remove exclude keywords from search text
                     clean_search_text = re.sub('|'.join([fr'(\s|^)\-{e}\b' for e in exclude_keywords]), '', clean_search_text, flags=re.I)
 
                 clean_search_text = clean_search_text.strip()
