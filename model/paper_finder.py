@@ -91,7 +91,7 @@ class PaperFinder:
                             if k in paper_title_counter)
 
         # searches for keyword as part of word in title, weighted by how much of w is made of k
-        title_score += sum(paper_title_counter[k] * v * len(k)/len(w) \
+        title_score += sum(paper_title_counter[w] * v * len(k)/len(w) \
                             for k, v in big_kw.items() for w in paper_title_counter if k in w and len(k) < len(w))
 
         # searches in title and also abstract using weights given during training
