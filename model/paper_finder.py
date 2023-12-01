@@ -211,7 +211,7 @@ class PaperFinder:
         # discard papers that does not fit our search
         valid_indices = range(self.n_papers)
 
-        with Timer('Excluding papers by keywords, conference and/or year'):
+        with Timer(name='Excluding papers by keywords, conference and/or year'):
             if len(conference) > 0:
                 if not conference.startswith('-'):
                     valid_indices = (i for i in valid_indices if self.papers[i].conference == conference)
@@ -227,14 +227,14 @@ class PaperFinder:
                 valid_indices = (i for i in valid_indices \
                                  if all((w not in self.papers[i].abstract_freq for w in exclude_keywords_index)))
 
-        with Timer('Keeping only papers with keywords or similar words'):
+        with Timer(name='Keeping only papers with keywords or similar words'):
             # keep only papers that contains the keywords and similar words
             valid_indices_by_kw = set()
             for kw in keywords_dict:
                 if kw in self.papers_with_words:
                     valid_indices_by_kw = valid_indices_by_kw.union(set(self.papers_with_words[kw]))
 
-        with Timer('Keeping also papers with superstrings of the keywords'):
+        with Timer(name='Keeping also papers with superstrings of the keywords'):
             # consider also words that are superstrings of the main keywords, excluding small keywords
             big_kw = {k: v for k, v in main_keywords_dict.items() if len(k) > 2}
             kw_as_substr = {w for kw in big_kw for w in self.papers_with_words if kw in w and len(kw) < len(w)}
@@ -243,7 +243,7 @@ class PaperFinder:
 
             valid_indices = (i for i in valid_indices if i in valid_indices_by_kw)
 
-        with Timer('Creating ngrams'):
+        with Timer(name='Creating ngrams'):
             # create various sequences of keywords to check on clean title
             ngrams = set()
             for n in range(2, len(keywords)+1):
@@ -251,7 +251,7 @@ class PaperFinder:
 
         scores = np.zeros(self.n_papers)
 
-        with Timer("Calculating papers' scores"):
+        with Timer(name="Calculating papers' scores"):
             valid_indices = list(valid_indices)
             np.put(scores, valid_indices, list(
                 self._calc_score(i, keywords, main_keywords_dict, similar_words_dict, big_kw, ngrams, search_str) for i in valid_indices))
@@ -283,7 +283,7 @@ class PaperFinder:
         if exclude_keywords is not None:
             exclude_keywords_index = {self.abstract_dict[k] for k in exclude_keywords if k in self.abstract_dict}
 
-        with Timer('Excluding papers by keywords, conference and/or year'):
+        with Timer(name='Excluding papers by keywords, conference and/or year'):
             if len(conference) > 0:
                 if not conference.startswith('-'):
                     valid_indices = (i for i in valid_indices if self.papers[i].conference == conference)
@@ -304,7 +304,7 @@ class PaperFinder:
 
                 filtered = True
 
-        with Timer('Filtering papers by regex'):
+        with Timer(name='Filtering papers by regex'):
             if filtered:
                 valid_indices_set = set(valid_indices)
                 filtered_abstracts = self.abstracts[self.abstracts.index.isin(valid_indices_set)]
@@ -317,7 +317,7 @@ class PaperFinder:
         compiled_regex = re.compile(regex, re.IGNORECASE)
         scores = np.zeros(self.n_papers)
 
-        with Timer("Calculating papers' scores"):
+        with Timer(name="Calculating papers' scores"):
             np.put(scores, valid_indices, list(
                 self._calc_regex_score(i, compiled_regex) for i in valid_indices))
 
@@ -330,7 +330,7 @@ class PaperFinder:
 
 
     def _load_object(self, name: Union[str, Path]) -> object:
-        with Timer(f'Loading {name}'):
+        with Timer(name=f'Loading {name}'):
             with gzip.open(f'{name}.pkl.gz', 'rb') as f:
                 return pickle.load(f)
 
@@ -513,7 +513,7 @@ class PaperFinder:
         else:
             similar_words = set(self.words)
 
-        with Timer('Creating dict of papers with words'):
+        with Timer(name='Creating dict of papers with words'):
             papers_with_words: Dict[str, List[int]] = defaultdict(list)
 
             for i, p in enumerate(self.papers):
