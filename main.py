@@ -415,19 +415,17 @@ def _root():
                     print(f'No papers found for search: {keywords_text}.')
                     search_result = []
 
-        elif len(conferences) > 0 or years > 0:
+        elif len(conferences) > 0 or len(years) > 0:
             # show all papers in conference and/or year
-            found_papers, total = _paper_finder.find_by_conference_and_year(
-                conferences=conferences, years=years, count=per_page, offset=offset)
-            search_result = [
-                _create_paper_search_result(i, 0) for i in found_papers]
+            found_papers, total = _paper_finder.find_by_conference_and_year(conferences=conferences, years=years, count=per_page, offset=offset)
+            search_result = [_create_paper_search_result(i, 0) for i in found_papers]
 
             keywords_text = ''
             if len(conferences) > 0:
                 conferences_text = ' '.join(f'#{c}' for c in conferences)
                 keywords_text += f'{conferences_text} '
             if len(years) > 0:
-                years_text = ' '.join(f'#{c}' for c in conferences)
+                years_text = ' '.join(f'#{c}' for c in years)
                 keywords_text += f'{years_text} '
         else:
             return redirect(url_for('_root'))
@@ -457,8 +455,7 @@ def _find_similar_papers():
     target = _create_paper_search_result(paper_id, 0)
     found_papers = _paper_finder.find_similar_papers(
         paper_id, count=per_page, offset=offset)
-    search_result = [_create_paper_search_result(
-        r[0], r[1]) for r in found_papers]
+    search_result = [_create_paper_search_result(r[0], r[1]) for r in found_papers]
 
     pagination = _get_pagination(page, SIMILAR_PAPER_LIMIT, per_page)
 
@@ -475,25 +472,24 @@ def _find_similar_papers():
 @app.route('/find_conf_or_year')
 def _find_conference_or_year():
     conference = request.args.get('conference', '')
-    year = int(request.args.get('year', 0))
+    year = request.args.get('year', '')
 
     if (conference is None and year is None) or \
-            (len(conference) == 0 and year == 0):
+            (len(conference) == 0 and len(year) == 0):
         # allows specifying the function name
         return redirect(url_for('_root'))
 
     page, per_page, offset = get_page_args()
-
-    found_papers, total = _paper_finder.find_by_conference_and_year(
-        conference=conference, year=year, count=per_page, offset=offset)
-    search_result = [
-        _create_paper_search_result(i, 0) for i in found_papers]
+    conferences = (conference,) if len(conference) > 0 else None
+    years = (year,) if len(year) > 0 else None
+    found_papers, total = _paper_finder.find_by_conference_and_year(conferences=conferences, years=years, count=per_page, offset=offset)
+    search_result = [_create_paper_search_result(i, 0) for i in found_papers]
 
     message = ''
     keywords = ''
     if len(conference) > 0:
         keywords += f'#{conference} '
-    if year > 0:
+    if len(year) > 0:
         keywords += f'#{year} '
 
     pagination = _get_pagination(page, total, per_page)
