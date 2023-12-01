@@ -1,8 +1,18 @@
 import logging
 import time
+from collections.abc import Callable
 from contextlib import ContextDecorator
 from dataclasses import dataclass, field
-from typing import Any, Callable, ClassVar, Dict, Optional
+from typing import Any, ClassVar
+
+try:
+    from colorama import Fore
+    COLORIZE = True
+except Exception:
+    COLORIZE = False
+
+
+_logger = logging.getLogger(__name__)
 
 
 class TimerError(Exception):
@@ -12,16 +22,36 @@ class TimerError(Exception):
 class Timer(ContextDecorator):
     """Time your code using a class, context manager, or decorator"""
 
-    timers: ClassVar[Dict[str, float]] = dict()
-    name: Optional[str] = None
-    text: str = "Elapsed time: {:0.4f} seconds"
-    logger: Optional[Callable[[str], None]] = print
-    _start_time: Optional[float] = field(default=None, init=False, repr=False)
+    bigger_than: float = 1.
+    color: str = 'red'
+    enabled: bool = True
+    logger: None | Callable[[str], None] = _logger.info
+    name: None | str = None
+    text: str = "Elapsed time: "
+    timers: ClassVar[dict[str, float]] = dict()
+    _start_time: None | float = field(default=None, init=False, repr=False)
 
     def __post_init__(self) -> None:
         """Initialization: add timer to dict of timers"""
         if self.name:
             self.timers.setdefault(self.name, 0)
+
+        if COLORIZE:
+            match self.color.lower():
+                case 'red':
+                    self.color = Fore.RED
+                case 'green':
+                    self.color = Fore.GREEN
+                case 'yellow':
+                    self.color = Fore.YELLOW
+                case 'blue':
+                    self.color = Fore.BLUE
+                case 'magenta':
+                    self.color = Fore.MAGENTA
+                case 'cyan':
+                    self.color = Fore.CYAN
+                case 'white':
+                    self.color = Fore.WHITE
 
     def start(self) -> None:
         """Start a new timer"""
@@ -40,17 +70,16 @@ class Timer(ContextDecorator):
         self._start_time = None
 
         # Report elapsed time
-        if self.logger:
+        if elapsed_time > self.bigger_than and self.logger:
             if self.name:
                 text = f'{self.name} {self.text.lower()}'
             else:
                 text = self.text
 
-            try:
-                from colorama import Fore
-                self.logger(f'{Fore.RED}{text.format(elapsed_time)}{Fore.RESET}')
-            except Exception:
-                self.logger(f'{text.format(elapsed_time)}')
+            if COLORIZE:
+                self.logger(f'{text + self.color + self._format_interval(elapsed_time) + Fore.RESET}')
+            else:
+                self.logger(f'{text + self._format_interval(elapsed_time)}')
 
         if self.name:
             self.timers[self.name] += elapsed_time
@@ -59,9 +88,39 @@ class Timer(ContextDecorator):
 
     def __enter__(self) -> "Timer":
         """Start a new timer as a context manager"""
-        self.start()
+        if self.enabled:
+            self.start()
         return self
 
     def __exit__(self, *exc_info: Any) -> None:
         """Stop the context manager timer"""
-        self.stop()
+        if self.enabled:
+            self.stop()
+
+    def _format_interval(self, t):
+        """
+        Formats a number of seconds as a clock time, [Dd ][Hh ][Mm ]S.SSSs
+
+        Parameters
+        ----------
+        t  : int
+            Number of seconds.
+
+        Returns
+        -------
+        out  : str
+            [Dd ][Hh ][Mm ]S.SSSs
+        """
+        mins, s = divmod(int(t), 60)
+        if mins:
+            h, m = divmod(mins, 60)
+            if h:
+                d, h = divmod(h, 24)
+                if d:
+                    return f'{d:d}d {h:02d}h {m:02d}m {s:02d}s'
+                else:
+                    return f'{h:d}h {m:02d}m {s:02d}s'
+            else:
+                return f'{m:d}m {s:02d}s'
+        else:
+            return f'{t:0.3f}s'
