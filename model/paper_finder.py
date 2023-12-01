@@ -3,7 +3,7 @@ import logging
 import pickle
 import pickletools
 import re
-from collections import defaultdict, Counter
+from collections import Counter
 from copy import deepcopy
 from functools import lru_cache
 from itertools import takewhile
@@ -163,8 +163,8 @@ class PaperFinder:
             keywords: tuple[str, ...],
             count: int = 0,
             similar: int = 5,
-            conference: str = '',
-            year: int = 0,
+            conferences: None | tuple[str, ...] = None,
+            years: None | tuple[str, ...] = None,
             exclude_keywords: None | tuple[str, ...] = None,
             search_str: None | str = None,
             ) -> tuple[tuple[int, ...], int, None | tuple[float, ...]]:
@@ -211,15 +211,50 @@ class PaperFinder:
         valid_indices = range(self.n_papers)
 
         with Timer(name='Excluding papers by keywords, conference and/or year'):
-            if len(conference) > 0:
-                if not conference.startswith('-'):
-                    valid_indices = (i for i in valid_indices if self.papers[i].conference == conference)
-                else:
-                    conference = conference[1:]
-                    valid_indices = (i for i in valid_indices if self.papers[i].conference != conference)
+            if conferences is not None and len(conferences) > 0:
+                # handle conferences to discard first
+                discard_conferences = {c[1:] for c in conferences if c.startswith('-')}
+                if len(discard_conferences) > 0:
+                    valid_indices = (i for i in valid_indices if self.papers[i].conference not in discard_conferences)
 
-            if year > 0:
-                valid_indices = (i for i in valid_indices if self.papers[i].year == year)
+                keep_conferences = {c for c in conferences if not c.startswith('-')}
+                if len(keep_conferences) > 0:
+                    valid_indices = (i for i in valid_indices if self.papers[i].conference in keep_conferences)
+
+            if years is not None and len(years) > 0:
+                # handle conferences to discard first
+                discard_years = {int(c[1:]) for c in years if c.startswith('-')}
+                if len(discard_years) > 0:
+                    valid_indices = (i for i in valid_indices if self.papers[i].year not in discard_years)
+
+                keep_years = {int(c) for c in years if c.isnumeric()}
+                if len(keep_years) > 0:
+                    valid_indices = (i for i in valid_indices if self.papers[i].year in keep_years)
+
+                remaining_years = set(years) - {c for c in years if c.startswith('-') or c.isnumeric()}
+                if len(remaining_years) > 0:
+                    for y in remaining_years:
+                        if y.startswith('<='):
+                            valid_indices = (i for i in valid_indices if self.papers[i].year <= int(y[2:]))
+                        elif y.startswith('>='):
+                            valid_indices = (i for i in valid_indices if self.papers[i].year >= int(y[2:]))
+                        elif y.startswith('<'):
+                            valid_indices = (i for i in valid_indices if self.papers[i].year < int(y[1:]))
+                        elif y.startswith('>'):
+                            valid_indices = (i for i in valid_indices if self.papers[i].year > int(y[1:]))
+                        elif y.startswith('=='):
+                            valid_indices = (i for i in valid_indices if self.papers[i].year == int(y[2:]))
+                        elif y.startswith('='):
+                            valid_indices = (i for i in valid_indices if self.papers[i].year == int(y[1:]))
+                        elif y.startswith('!='):
+                            valid_indices = (i for i in valid_indices if self.papers[i].year != int(y[2:]))
+                        elif y.startswith('!'):
+                            valid_indices = (i for i in valid_indices if self.papers[i].year != int(y[1:]))
+                        else:
+                            self.logger.warning(f'Invalid year filter: {y}')
+
+                        # doing this because for some reason the generator is not working correctly in the loop
+                        valid_indices = list(valid_indices)
 
             # if contains keyword to exclude, discard it
             if exclude_keywords is not None and len(exclude_keywords_index) > 0:
@@ -266,8 +301,8 @@ class PaperFinder:
     def _find_by_regex(
             self,
             regex: str,
-            conference: str = '',
-            year: int = 0,
+            conferences: None | tuple[str, ...] = None,
+            years: None | tuple[str, ...] = None,
             exclude_keywords: None | tuple[str, ...] = None,
             count: int = 0,
             ) -> tuple[tuple[int, ...], int, None | tuple[float, ...]]:
@@ -283,25 +318,61 @@ class PaperFinder:
             exclude_keywords_index = {self.abstract_dict[k] for k in exclude_keywords if k in self.abstract_dict}
 
         with Timer(name='Excluding papers by keywords, conference and/or year'):
-            if len(conference) > 0:
-                if not conference.startswith('-'):
-                    valid_indices = (i for i in valid_indices if self.papers[i].conference == conference)
-                    filtered = True
-                else:
-                    conference = conference[1:]
-                    valid_indices = (i for i in valid_indices if self.papers[i].conference != conference)
-                    filtered = True
-
-            if year > 0:
-                valid_indices = (i for i in valid_indices if self.papers[i].year == year)
+            if conferences is not None and len(conferences) > 0:
                 filtered = True
+
+                # handle conferences to discard first
+                discard_conferences = {c[1:] for c in conferences if c.startswith('-')}
+                if len(discard_conferences) > 0:
+                    valid_indices = (i for i in valid_indices if self.papers[i].conference not in discard_conferences)
+
+                keep_conferences = {c for c in conferences if not c.startswith('-')}
+                if len(keep_conferences) > 0:
+                    valid_indices = (i for i in valid_indices if self.papers[i].conference in keep_conferences)
+
+            if years is not None and len(years) > 0:
+                filtered = True
+
+                # handle conferences to discard first
+                discard_years = {int(c[1:]) for c in years if c.startswith('-')}
+                if len(discard_years) > 0:
+                    valid_indices = (i for i in valid_indices if self.papers[i].year not in discard_years)
+
+                keep_years = {int(c) for c in years if c.isnumeric()}
+                if len(keep_years) > 0:
+                    valid_indices = (i for i in valid_indices if self.papers[i].year in keep_years)
+
+                remaining_years = set(years) - {c for c in years if c.startswith('-') or c.isnumeric()}
+                if len(remaining_years) > 0:
+                    for y in remaining_years:
+                        if y.startswith('<='):
+                            valid_indices = (i for i in valid_indices if self.papers[i].year <= int(y[2:]))
+                        elif y.startswith('>='):
+                            valid_indices = (i for i in valid_indices if self.papers[i].year >= int(y[2:]))
+                        elif y.startswith('<'):
+                            valid_indices = (i for i in valid_indices if self.papers[i].year < int(y[1:]))
+                        elif y.startswith('>'):
+                            valid_indices = (i for i in valid_indices if self.papers[i].year > int(y[1:]))
+                        elif y.startswith('=='):
+                            valid_indices = (i for i in valid_indices if self.papers[i].year == int(y[2:]))
+                        elif y.startswith('='):
+                            valid_indices = (i for i in valid_indices if self.papers[i].year == int(y[1:]))
+                        elif y.startswith('!='):
+                            valid_indices = (i for i in valid_indices if self.papers[i].year != int(y[2:]))
+                        elif y.startswith('!'):
+                            valid_indices = (i for i in valid_indices if self.papers[i].year != int(y[1:]))
+                        else:
+                            self.logger.warning(f'Invalid year filter: {y}')
+
+                        # doing this because for some reason the generator is not working correctly in the loop
+                        valid_indices = list(valid_indices)
 
             # if contains keyword to exclude, discard it
             if exclude_keywords is not None and len(exclude_keywords_index) > 0:
+                filtered = True
+
                 valid_indices = (i for i in valid_indices \
                                  if all((w not in self.papers[i].abstract_freq for w in exclude_keywords_index)))
-
-                filtered = True
 
         with Timer(name='Filtering papers by regex'):
             if filtered:
@@ -351,19 +422,19 @@ class PaperFinder:
         return result[offset:offset+count], len_result
 
     def find_by_keywords(
-        self,
-        keywords: tuple[str, ...],
-        count: int = 0,
-        similar: int = 5,
-        conference: str = '',
-        year: int = 0,
-        exclude_keywords: tuple[str, ...] = None,
-        offset: int = 0,
-        search_str: None | str = None,
+            self,
+            keywords: tuple[str, ...],
+            count: int = 0,
+            similar: int = 5,
+            conferences: None | tuple[str, ...] = None,
+            years: None | tuple[str, ...] = None,
+            exclude_keywords: tuple[str, ...] = None,
+            offset: int = 0,
+            search_str: None | str = None,
         ) -> tuple[list[tuple[int, float]], int]:
 
         result, result_len, scores = self._find_by_keywords(
-            keywords, count, similar, conference, year, exclude_keywords, search_str)
+            keywords, count, similar, conferences, years, exclude_keywords, search_str)
 
         if offset < result_len:
             if offset + count < result_len:
@@ -378,14 +449,14 @@ class PaperFinder:
     def find_by_regex(
             self,
             regex: str,
-            conference: str = '',
-            year: int = 0,
+            conferences: None | tuple[str, ...] = None,
+            years: None | tuple[str, ...] = None,
             exclude_keywords: tuple[str, ...] = None,
             count: int = 0,
             offset: int = 0,
             ) -> tuple[list[tuple[int, float]], int]:
 
-        result, result_len, scores = self._find_by_regex(regex, conference, year, exclude_keywords, count)
+        result, result_len, scores = self._find_by_regex(regex, conferences, years, exclude_keywords, count)
 
         if offset < result_len:
             if offset + count < result_len:

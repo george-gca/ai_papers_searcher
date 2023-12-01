@@ -17,7 +17,7 @@ from timer import Timer
 
 CONVERT_ABSTRACTS_TO_WORDS = True # allow searching with regex
 HYPHEN_REGEX = re.compile(r'([\w_]+)[\-\−\–]([\w_]+)')
-NOT_ALLOWED_CHARS = set(punctuation) - {'_', '-', '#', '/'}
+NOT_ALLOWED_CHARS = set(punctuation) - {'_', '-', '#', '/', '<', '>', '=', '!'}
 SIMILAR_PAPER_LIMIT = 100
 SIMILAR_WORDS_IN_SEARCH = 5
 TITLE = 'AI'
@@ -169,25 +169,25 @@ def _get_pagination(page: int, total: int, per_page: int = 15) -> Pagination:
     )
 
 
-def _handle_filters(keywords: list[str]) -> tuple[tuple[str, ...], str, int, None | tuple[str, ...]]:
-    conference = ''
-    exclude_keywords = []
-    new_keywords = []
-    year = 0
+def _handle_filters(keywords: list[str]) -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...], None | tuple[str, ...]]:
+    conference_keywords = set()
+    exclude_keywords = set()
+    new_keywords = set()
+    year_keywords = set()
 
     for keyword in keywords:
         if keyword.startswith('#'):
             filter_keyword = keyword[1:]
-            if filter_keyword.isnumeric():
-                year = int(filter_keyword)
+            if filter_keyword.isnumeric() or filter_keyword.startswith(('<=', '<', '=', '==', '>=', '>', '!=', '!')):
+                year_keywords.add(filter_keyword)
             else:
-                conference = filter_keyword
+                conference_keywords.add(filter_keyword)
         elif keyword.startswith('-'):
-            exclude_keywords.append(keyword[1:])
+            exclude_keywords.add(keyword[1:])
         else:
-            new_keywords.append(keyword)
+            new_keywords.add(keyword)
 
-    return tuple(new_keywords), conference, year, tuple(exclude_keywords) if len(exclude_keywords) > 0 else None
+    return tuple(new_keywords), tuple(conference_keywords), tuple(year_keywords), tuple(exclude_keywords) if len(exclude_keywords) > 0 else None
 
 
 def _has_regex(keywords_text: str) -> bool:
@@ -195,7 +195,7 @@ def _has_regex(keywords_text: str) -> bool:
     if keywords_text is None or len(keywords_text) == 0 or keywords_text.isalnum() or not CONVERT_ABSTRACTS_TO_WORDS:
         return False
 
-    return any(not c.isalnum() and c not in '#_- ' for c in keywords_text)
+    return any(not c.isalnum() and c in NOT_ALLOWED_CHARS for c in keywords_text)
 
 
 def _recreate_url(url_str: str, conference: str, year: int, is_abstract: bool = False) -> str:
@@ -312,7 +312,7 @@ def _root():
     if keywords_text is not None:
         print(f'Search string: {keywords_text}')
         keywords = _define_keywords(keywords_text)
-        keywords, conference, year, exclude_keywords = _handle_filters(keywords)
+        keywords, conferences, years, exclude_keywords = _handle_filters(keywords)
 
         if len(keywords) > 0:
             if not _has_regex(keywords_text):
@@ -321,8 +321,8 @@ def _root():
                     found_papers, total = _paper_finder.find_by_keywords(
                         keywords,
                         similar=SIMILAR_WORDS_IN_SEARCH,
-                        conference=conference,
-                        year=year,
+                        conferences=conferences,
+                        years=years,
                         exclude_keywords=exclude_keywords,
                         count=per_page,
                         offset=offset,
@@ -345,8 +345,8 @@ def _root():
                             found_papers, total = _paper_finder.find_by_keywords(
                                 keywords,
                                 similar=SIMILAR_WORDS_IN_SEARCH,
-                                conference=conference,
-                                year=year,
+                                conferences=conferences,
+                                years=years,
                                 exclude_keywords=exclude_keywords,
                                 count=per_page,
                                 offset=offset,
@@ -379,13 +379,15 @@ def _root():
             else:
                 # if any keyword is not alphanumeric, search using regex in title
                 clean_search_text = keywords_text
-                if len(conference) > 0:
-                    # remove conference from search text
-                    clean_search_text = re.sub(fr'(\s|^)\#{conference}\b', '', clean_search_text, flags=re.I)
+                if len(conferences) > 0:
+                    # remove conferences from search text
+                    conferences_text = '|'.join(conferences)
+                    clean_search_text = re.sub(fr'(\s|^)\#({conferences_text})\b', '', clean_search_text, flags=re.I)
 
-                if year > 0:
-                    # remove year from search text
-                    clean_search_text = re.sub(fr'(\s|^)\#{year}\b', '', clean_search_text, flags=re.I)
+                if len(years) > 0:
+                    # remove years from search text
+                    years_text = '|'.join(years)
+                    clean_search_text = re.sub(fr'(\s|^)\#{years_text}\b', '', clean_search_text, flags=re.I)
 
                 if exclude_keywords is not None and len(exclude_keywords) > 0:
                     # remove exclude keywords from search text
@@ -396,8 +398,8 @@ def _root():
                 with Timer(name=f'Searching for papers with regex:\n{clean_search_text}\n'):
                     found_papers, total = _paper_finder.find_by_regex(
                         clean_search_text,
-                        conference=conference,
-                        year=year,
+                        conferences=conferences,
+                        years=years,
                         exclude_keywords=exclude_keywords,
                         count=per_page,
                         offset=offset,
@@ -413,18 +415,20 @@ def _root():
                     print(f'No papers found for search: {keywords_text}.')
                     search_result = []
 
-        elif len(conference) > 0 or year > 0:
+        elif len(conferences) > 0 or years > 0:
             # show all papers in conference and/or year
             found_papers, total = _paper_finder.find_by_conference_and_year(
-                conference=conference, year=year, count=per_page, offset=offset)
+                conferences=conferences, years=years, count=per_page, offset=offset)
             search_result = [
                 _create_paper_search_result(i, 0) for i in found_papers]
 
             keywords_text = ''
-            if len(conference) > 0:
-                keywords_text += f'#{conference} '
-            if year > 0:
-                keywords_text += f'#{year} '
+            if len(conferences) > 0:
+                conferences_text = ' '.join(f'#{c}' for c in conferences)
+                keywords_text += f'{conferences_text} '
+            if len(years) > 0:
+                years_text = ' '.join(f'#{c}' for c in conferences)
+                keywords_text += f'{years_text} '
         else:
             return redirect(url_for('_root'))
 
