@@ -9,25 +9,26 @@
     </h5>
 
     <div class="card-body">
-        <button class="btn btn-sm btn-dark collapsed" data-toggle="collapse"
+        <button class="btn btn-sm btn-dark collapsed" data-toggle="collapse" aria-label="Show abstract"
             data-target="#collapseAbstract{{paper.identification}}" aria-expanded="false"
             aria-controls="collapseAbstract">
             <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fas fa-file-alt mr-2"></i>Show abstract</span>
             <span class="d-none d-sm-none d-md-block d-lg-none"><i class="fas fa-file-alt mr-2"></i>Abstract</span>
             <span class="d-block d-sm-block d-md-none"><i class="fas fa-file-alt"></i></span>
         </button>
-        <a href="{{ paper.abstract_url }}" target="_blank" class="btn btn-sm btn-dark">
+        <a href="{{ paper.abstract_url }}" target="_blank" class="btn btn-sm btn-dark" aria-label="More info">
             <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fas fa-plus-square mr-2"></i>More info</span>
             <span class="d-none d-sm-none d-md-block d-lg-none"><i class="fas fa-plus-square mr-2"></i>Info</span>
             <span class="d-block d-sm-block d-md-none"><i class="fas fa-plus-square"></i></span>
         </a>
-        <a href="https://www.mendeley.com/import/?url={{ paper.abstract_url }}" target="_blank" role="button" class="btn btn-sm btn-dark">
+        <a href="https://www.mendeley.com/import/?url={{ paper.abstract_url }}" target="_blank" role="button"
+            class="btn btn-sm btn-dark" aria-label="Add to Mendeley">
             <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fab fa-mendeley mr-2"></i>Add to Mendeley</span>
             <span class="d-none d-sm-none d-md-block d-lg-none"><i class="fab fa-mendeley mr-2"></i>Add to</span>
             <span class="d-block d-sm-block d-md-none"><i class="fab fa-mendeley"></i></span>
         </a>
         {% if paper.pdf_url and paper.pdf_url|length > 0 %}
-        <a href="{{ paper.pdf_url }}" target="_blank" class="btn btn-sm btn-dark">
+        <a href="{{ paper.pdf_url }}" target="_blank" class="btn btn-sm btn-dark" aria-label="Open PDF">
             <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fas fa-file-pdf mr-2"></i>Open PDF</span>
             <span class="d-none d-sm-none d-md-block d-lg-none"><i class="fas fa-file-pdf mr-2"></i>Open</span>
             <span class="d-block d-sm-block d-md-none"><i class="fas fa-file-pdf"></i></span>
@@ -35,15 +36,14 @@
         {% endif %}
         {% if paper.arxiv_id and paper.arxiv_id|length > 0 %}
         <div class="btn-group" role="group">
-            <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-dark dropdown-toggle d-none d-sm-none d-md-none d-lg-block" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-dark dropdown-toggle d-none d-sm-none d-md-none d-lg-block" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
                 <span><i class="fas fa-book-reader mr-2"></i>Read online</span>
             </button>
-            <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-dark dropdown-toggle d-none d-sm-none d-md-block d-lg-none" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-dark dropdown-toggle d-none d-sm-none d-md-block d-lg-none" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
                 <i class="fas fa-book-reader mr-2"></i>Read
             </button>
-            <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-dark dropdown-toggle d-block d-sm-block d-md-none" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-dark dropdown-toggle d-block d-sm-block d-md-none" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
                 <i class="fas fa-book-reader"></i>
-            </button>
             </button>
             <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                 <a href="https://ar5iv.org/abs/{{ paper.arxiv_id }}" target="_blank" role="button" class="btn btn-sm btn-outline-light dropdown-item" data-bs-toggle="tooltip"
@@ -59,7 +59,7 @@
             </div>
         </div>
         {% endif %}
-        <a href="/find_similar_papers?paper_id={{ paper.identification }}" class="btn btn-sm btn-dark">
+        <a href="/find_similar_papers?paper_id={{ paper.identification }}" class="btn btn-sm btn-dark" aria-label="Find similar papers">
             <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fas fa-angle-double-right mr-2"></i>Find similar papers</span>
             <span class="d-none d-sm-none d-md-block d-lg-none"><i class="fas fa-angle-double-right mr-2"></i>Find similars</span>
             <span class="d-block d-sm-block d-md-none"><i class="fas fa-angle-double-right"></i></span>
