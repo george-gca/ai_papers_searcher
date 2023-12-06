@@ -9,7 +9,7 @@ fi
 if [ -n "$create_abstracts_dict" ]; then
     echo "Creating abstracts dictionary"
     # must use the same year as used in ai_papers_search_tool
-    $run_command python abstracts_to_dict.py -i -y 2019
+    $run_command python abstracts_to_dict.py -i
 fi
 
 $run_command python main.py
