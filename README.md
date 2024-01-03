@@ -9,6 +9,17 @@ Web app to search papers by keywords or similar papers. Based on [CVPR_paper_sea
 
 I also added support for more conferences in a single web app, customized it a little further, and hosted it on [PythonAnywhere](https://www.pythonanywhere.com/). You can see a running example [here](https://georgegca.pythonanywhere.com/).
 
+---
+
+## [Google Lighthouse PageSpeed Insights](https://pagespeed.web.dev/analysis/https-georgegca-pythonanywhere-com/iu5e0f9uos?form_factor=desktop)
+
+| [Desktop](https://htmlpreview.github.io/?https://github.com/george-gca/ai_papers_searcher/blob/main/lighthouse_results/desktop/georgegca_pythonanywhere_com__keywords_vqa.html) | [Mobile](https://htmlpreview.github.io/?https://github.com/george-gca/ai_papers_searcher/blob/main/lighthouse_results/mobile/georgegca_pythonanywhere_com__keywords_vqa.html) |
+| --- | --- |
+| ![Performance Insights](lighthouse_results/desktop/lighthouse_performance.svg) | ![Performance Insights](lighthouse_results/mobile/lighthouse_performance.svg) |
+| ![Accessibility Insights](lighthouse_results/desktop/lighthouse_accessibility.svg) | ![Accessibility Insights](lighthouse_results/mobile/lighthouse_accessibility.svg) |
+| ![Best Practices Insights](lighthouse_results/desktop/lighthouse_best-practices.svg) | ![Best Practices Insights](lighthouse_results/mobile/lighthouse_best-practices.svg) |
+| ![SEO Insights](lighthouse_results/desktop/lighthouse_seo.svg) | ![SEO Insights](lighthouse_results/mobile/lighthouse_seo.svg) |
+
 ## Requirements
 
 [Docker](https://www.docker.com/) or, for local installation:
