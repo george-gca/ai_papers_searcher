@@ -6,20 +6,64 @@
 </p>
 <p>
 <div class="card bg-dark text-white">
-    <h5 class="card-header"><span class="float-left">{{ paper.title }}</span>
-        <span class="float-right"><span class="badge badge-info">{{ paper.conference }}</span>
-            <span class="badge badge-primary">{{ paper.year }}</span></span></h5>
+    <h5 class="card-header">
+        <span class="float-left">{{ paper.title }}</span>
+        <span class="float-right">
+            <span class="badge badge-info mr-2">{{ paper.conference }}</span>
+            <span class="badge badge-primary">{{ paper.year }}</span>
+        </span>
+    </h5>
     <div class="card-body">
-        <button class="btn btn-sm btn-dark collapsed" data-toggle="collapse"
+        <button class="btn btn-dark collapsed" data-toggle="collapse" aria-label="Show abstract"
             data-target="#collapseAbstract{{paper.identification}}" aria-expanded="false"
             aria-controls="collapseAbstract">
-            <i class="fas fa-file-alt"></i> Show abstract
+            <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fas fa-file-alt mr-2"></i>Show abstract</span>
+            <span class="d-none d-sm-none d-md-block d-lg-none"><i class="fas fa-file-alt mr-2"></i>Abstract</span>
+            <span class="d-block d-sm-block d-md-none"><i class="fas fa-file-alt"></i></span>
         </button>
-        <a href="{{ paper.abstract_url }}" target="_blank" class="btn btn-sm btn-dark"><i
-                class="fas fa-plus-square"></i> More
-            info</a>
-        <a href="{{ paper.pdf_url }}" target="_blank" class="btn btn-sm btn-dark"><i
-                class="fas fa-file-pdf"></i> Open PDF</a>
+        <a href="{{ paper.abstract_url }}" target="_blank" class="btn btn-dark" aria-label="Paper page">
+            <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fas fa-plus-square mr-2"></i>Paper page</span>
+            <span class="d-none d-sm-none d-md-block d-lg-none"><i class="fas fa-plus-square mr-2"></i>Page</span>
+            <span class="d-block d-sm-block d-md-none"><i class="fas fa-plus-square"></i></span>
+        </a>
+        <a href="https://www.mendeley.com/import/?url={{ paper.abstract_url }}" target="_blank" role="button"
+            class="btn btn-dark" aria-label="Add to Mendeley">
+            <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fab fa-mendeley mr-2"></i>Add to Mendeley</span>
+            <span class="d-none d-sm-none d-md-block d-lg-none"><i class="fab fa-mendeley mr-2"></i>Add to</span>
+            <span class="d-block d-sm-block d-md-none"><i class="fab fa-mendeley"></i></span>
+        </a>
+        {% if paper.pdf_url and paper.pdf_url|length > 0 %}
+        <a href="{{ paper.pdf_url }}" target="_blank" class="btn btn-dark" aria-label="Open PDF">
+            <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fas fa-file-pdf mr-2"></i>Open PDF</span>
+            <span class="d-none d-sm-none d-md-block d-lg-none"><i class="fas fa-file-pdf mr-2"></i>Open</span>
+            <span class="d-block d-sm-block d-md-none"><i class="fas fa-file-pdf"></i></span>
+        </a>
+        {% endif %}
+        {% if paper.arxiv_id and paper.arxiv_id|length > 0 %}
+        <div class="btn-group" role="group">
+            <button id="btnGroupDrop1" type="button" class="btn btn-dark dropdown-toggle d-none d-sm-none d-md-none d-lg-block" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
+                <span><i class="fas fa-book-reader mr-2"></i>Read online</span>
+            </button>
+            <button id="btnGroupDrop1" type="button" class="btn btn-dark dropdown-toggle d-none d-sm-none d-md-block d-lg-none" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
+                <i class="fas fa-book-reader mr-2"></i>Read
+            </button>
+            <button id="btnGroupDrop1" type="button" class="btn btn-dark dropdown-toggle d-block d-sm-block d-md-none" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
+                <i class="fas fa-book-reader"></i>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <a href="https://ar5iv.org/abs/{{ paper.arxiv_id }}" target="_blank" role="button" class="btn btn-outline-light dropdown-item" data-bs-toggle="tooltip"
+                data-bs-placement="bottom" title="Read online on ar5iv">
+                    <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fab fa-html5 mr-2"></i>Read online on ar5iv</span>
+                    <span class="d-md-block d-lg-none"><i class="fab fa-html5 mr-2"></i>Read on ar5iv</span>
+                </a>
+                <a href="https://academ.us/article/{{ paper.arxiv_id }}/" target="_blank" role="button" class="btn btn-outline-light dropdown-item" data-bs-toggle="tooltip"
+                data-bs-placement="bottom" title="Read online on Academus">
+                    <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fas fa-graduation-cap fa-flip-horizontal fa-sm mr-1"></i>Read online on Academus</span>
+                    <span class="d-md-block d-lg-none"><i class="fas fa-graduation-cap fa-flip-horizontal fa-sm mr-1"></i>Read on Academus</span>
+                </a>
+            </div>
+        </div>
+        {% endif %}
 
         <div id="collapseAbstract{{paper.identification}}" class="collapse" aria-labelledby="collapseAbstract"
             data-parent="#accordion">
