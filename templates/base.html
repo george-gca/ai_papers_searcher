@@ -10,7 +10,7 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.png') }}">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.6.2/dist/darkly/bootstrap.min.css"
+    <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.6.2/dist/darkly/bootstrap.min.css"
         integrity="sha256-Z4AEnSs0JXuM2TJuvLaXcZDmkIoZ6r4T0cgNEkETs6c=" crossorigin="anonymous">
 
     <!-- Font Awesome -->
@@ -52,7 +52,7 @@
         {{ pagination.links }}
     </div>
 
-    <!-- jQuery must come first, then Popper.js, and then Bootstrap JavaScript plugins -->
+    <!-- jQuery must come first, then Bootstrap JavaScript plugins -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.slim.min.js"
         integrity="sha512-sNylduh9fqpYUK5OYXWcBleGzbZInWj8yCJAU57r1dpSK9tP2ghf/SRYCMj+KsslFkCOt3TvJrX2AV/Gc3wOqA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
