@@ -9,26 +9,26 @@
     </h5>
 
     <div class="card-body">
-        <button class="btn btn-sm btn-dark collapsed" data-toggle="collapse" aria-label="Show abstract"
+        <button class="btn btn-dark collapsed" data-toggle="collapse" aria-label="Show abstract"
             data-target="#collapseAbstract{{paper.identification}}" aria-expanded="false"
             aria-controls="collapseAbstract">
             <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fas fa-file-alt mr-2"></i>Show abstract</span>
             <span class="d-none d-sm-none d-md-block d-lg-none"><i class="fas fa-file-alt mr-2"></i>Abstract</span>
             <span class="d-block d-sm-block d-md-none"><i class="fas fa-file-alt"></i></span>
         </button>
-        <a href="{{ paper.abstract_url }}" target="_blank" class="btn btn-sm btn-dark" aria-label="More info">
-            <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fas fa-plus-square mr-2"></i>More info</span>
-            <span class="d-none d-sm-none d-md-block d-lg-none"><i class="fas fa-plus-square mr-2"></i>Info</span>
+        <a href="{{ paper.abstract_url }}" target="_blank" class="btn btn-dark" aria-label="Paper page">
+            <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fas fa-plus-square mr-2"></i>Paper page</span>
+            <span class="d-none d-sm-none d-md-block d-lg-none"><i class="fas fa-plus-square mr-2"></i>Page</span>
             <span class="d-block d-sm-block d-md-none"><i class="fas fa-plus-square"></i></span>
         </a>
         <a href="https://www.mendeley.com/import/?url={{ paper.abstract_url }}" target="_blank" role="button"
-            class="btn btn-sm btn-dark" aria-label="Add to Mendeley">
+            class="btn btn-dark" aria-label="Add to Mendeley">
             <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fab fa-mendeley mr-2"></i>Add to Mendeley</span>
             <span class="d-none d-sm-none d-md-block d-lg-none"><i class="fab fa-mendeley mr-2"></i>Add to</span>
             <span class="d-block d-sm-block d-md-none"><i class="fab fa-mendeley"></i></span>
         </a>
         {% if paper.pdf_url and paper.pdf_url|length > 0 %}
-        <a href="{{ paper.pdf_url }}" target="_blank" class="btn btn-sm btn-dark" aria-label="Open PDF">
+        <a href="{{ paper.pdf_url }}" target="_blank" class="btn btn-dark" aria-label="Open PDF">
             <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fas fa-file-pdf mr-2"></i>Open PDF</span>
             <span class="d-none d-sm-none d-md-block d-lg-none"><i class="fas fa-file-pdf mr-2"></i>Open</span>
             <span class="d-block d-sm-block d-md-none"><i class="fas fa-file-pdf"></i></span>
@@ -36,22 +36,22 @@
         {% endif %}
         {% if paper.arxiv_id and paper.arxiv_id|length > 0 %}
         <div class="btn-group" role="group">
-            <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-dark dropdown-toggle d-none d-sm-none d-md-none d-lg-block" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
+            <button id="btnGroupDrop1" type="button" class="btn btn-dark dropdown-toggle d-none d-sm-none d-md-none d-lg-block" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
                 <span><i class="fas fa-book-reader mr-2"></i>Read online</span>
             </button>
-            <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-dark dropdown-toggle d-none d-sm-none d-md-block d-lg-none" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
+            <button id="btnGroupDrop1" type="button" class="btn btn-dark dropdown-toggle d-none d-sm-none d-md-block d-lg-none" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
                 <i class="fas fa-book-reader mr-2"></i>Read
             </button>
-            <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-dark dropdown-toggle d-block d-sm-block d-md-none" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
+            <button id="btnGroupDrop1" type="button" class="btn btn-dark dropdown-toggle d-block d-sm-block d-md-none" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
                 <i class="fas fa-book-reader"></i>
             </button>
             <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                <a href="https://ar5iv.org/abs/{{ paper.arxiv_id }}" target="_blank" role="button" class="btn btn-sm btn-outline-light dropdown-item" data-bs-toggle="tooltip"
+                <a href="https://ar5iv.org/abs/{{ paper.arxiv_id }}" target="_blank" role="button" class="btn btn-outline-light dropdown-item" data-bs-toggle="tooltip"
                 data-bs-placement="bottom" title="Read online on ar5iv">
                     <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fab fa-html5 mr-2"></i>Read online on ar5iv</span>
                     <span class="d-md-block d-lg-none"><i class="fab fa-html5 mr-2"></i>Read on ar5iv</span>
                 </a>
-                <a href="https://academ.us/article/{{ paper.arxiv_id }}/" target="_blank" role="button" class="btn btn-sm btn-outline-light dropdown-item" data-bs-toggle="tooltip"
+                <a href="https://academ.us/article/{{ paper.arxiv_id }}/" target="_blank" role="button" class="btn btn-outline-light dropdown-item" data-bs-toggle="tooltip"
                 data-bs-placement="bottom" title="Read online on Academus">
                     <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fas fa-graduation-cap fa-flip-horizontal fa-sm mr-1"></i>Read online on Academus</span>
                     <span class="d-md-block d-lg-none"><i class="fas fa-graduation-cap fa-flip-horizontal fa-sm mr-1"></i>Read on Academus</span>
@@ -59,7 +59,7 @@
             </div>
         </div>
         {% endif %}
-        <a href="/find_similar_papers?paper_id={{ paper.identification }}" class="btn btn-sm btn-dark" aria-label="Find similar papers">
+        <a href="/find_similar_papers?paper_id={{ paper.identification }}" class="btn btn-dark" aria-label="Find similar papers">
             <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fas fa-angle-double-right mr-2"></i>Find similar papers</span>
             <span class="d-none d-sm-none d-md-block d-lg-none"><i class="fas fa-angle-double-right mr-2"></i>Find similars</span>
             <span class="d-block d-sm-block d-md-none"><i class="fas fa-angle-double-right"></i></span>
@@ -71,7 +71,7 @@
         <div class="d-flex bd-highlight mb-3">
             <div class="mr-auto p-2 bd-highlight">
                 <a href="https://paperswithcode.com/search?q_meta=&q_type=&q={{ paper.title }}" target="_blank" role="button"
-                    class="btn btn-sm btn-outline-light" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                    class="btn btn-outline-light mr-2" data-bs-toggle="tooltip" data-bs-placement="bottom"
                     title="Search on Papers With Code">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                         <path d="M88 128h48v256H88zm144 0h48v256h-48zm-72 16h48v224h-48zm144 0h48v224h-48zm72-16h48v256h-48z">
@@ -79,15 +79,15 @@
                         <path d="M104 104V56H16v400h88v-48H64V104zm304-48v48h40v304h-40v48h88V56z"></path>
                     </svg></a>
                 <a href="https://scholar.google.com/scholar?q={{ paper.title }}" target="_blank" role="button"
-                    class="btn btn-sm btn-outline-light" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                    class="btn btn-outline-light mr-2" data-bs-toggle="tooltip" data-bs-placement="bottom"
                     title="Search on Google Scholar">
                     <i class="ai ai-google-scholar"></i></a>
                 <a href="https://www.semanticscholar.org/search?q={{ paper.title }}" target="_blank" role="button"
-                    class="btn btn-sm btn-outline-light" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                    class="btn btn-outline-light mr-2" data-bs-toggle="tooltip" data-bs-placement="bottom"
                     title="Search on Semantic Scholar">
                     <i class="ai ai-semantic-scholar"></i></a>
                 <a href="https://www.connectedpapers.com/search?q={{ paper.title }}" target="_blank" role="button"
-                    class="btn btn-sm btn-outline-light" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                    class="btn btn-outline-light" data-bs-toggle="tooltip" data-bs-placement="bottom"
                     title="Search on Connected Papers">
                     <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -107,7 +107,7 @@
             </div>
             <div class="p-2 bd-highlight">
                 {% if paper.conference and paper.conference|length > 0 %}
-                    <a href="/find_conf_or_year?conference={{ paper.conference }}" class="badge badge-info">{{ paper.conference }}</a>
+                    <a href="/find_conf_or_year?conference={{ paper.conference }}" class="badge badge-info mr-2">{{ paper.conference }}</a>
                 {% endif %}
                 <a href="/find_conf_or_year?year={{ paper.year }}" class="badge badge-primary">{{ paper.year }}</a>
             </div>
@@ -122,9 +122,9 @@
             </br>
             {% for paper_url in paper.urls %}
             {% if 'github' in paper_url or 'gitlab' in paper_url %}
-            <a href="{{ paper_url }}" target="_blank" class="btn btn-sm btn-dark"><i class="fab fa-github"></i></a>
+            <a href="{{ paper_url }}" target="_blank" class="btn btn-dark"><i class="fab fa-github"></i></a>
             {% else %}
-            <a href="{{ paper_url }}" target="_blank" class="btn btn-sm btn-dark"><i
+            <a href="{{ paper_url }}" target="_blank" class="btn btn-dark"><i
                     class="fas fa-external-link-alt"></i></a>
             {% endif %}
             {% endfor %}
