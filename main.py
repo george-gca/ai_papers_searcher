@@ -8,6 +8,7 @@ from pathlib import Path
 from string import punctuation
 
 from flask import Flask, redirect, render_template, request, url_for
+from flask_minify import Minify
 from flask_paginate import Pagination, get_page_args
 from unidecode import unidecode
 
@@ -68,6 +69,7 @@ class PaperSearchResult:
 # called `app` in `main.py`.
 # _logger = logging.getLogger(__name__)
 app = Flask(__name__)
+Minify(app=app, html=True, js=True, cssless=True)
 
 
 with Timer(name='Loading data'):

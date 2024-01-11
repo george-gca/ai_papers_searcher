@@ -32,6 +32,7 @@ RUN PIP_INSTALL="pip --no-cache-dir install --upgrade" && \
         wheel && \
     $PIP_INSTALL \
         flask \
+        Flask-Minify \
         flask-paginate \
         gunicorn \
         numpy \
