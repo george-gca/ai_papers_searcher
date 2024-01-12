@@ -46,7 +46,8 @@
         <!-- Papers -->
         <div id="accordion">
             {% for paper in search_result %}
-            {% include "result.html" %}
+                {% set index = loop.index %}
+                {% include "result.html" %}
             {% endfor %}
         </div>
         {{ pagination.links }}

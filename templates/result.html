@@ -36,16 +36,22 @@
         {% endif %}
         {% if paper.arxiv_id and paper.arxiv_id|length > 0 %}
         <div class="btn-group" role="group">
-            <button id="btnGroupDrop1" type="button" class="btn btn-dark dropdown-toggle d-none d-sm-none d-md-none d-lg-block" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
+            <button id="btnGroupDrop{{ index }}" type="button" class="btn btn-dark dropdown-toggle d-none d-sm-none d-md-none d-lg-block" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
                 <span><i class="fas fa-book-reader mr-2"></i>Read online</span>
             </button>
-            <button id="btnGroupDrop1" type="button" class="btn btn-dark dropdown-toggle d-none d-sm-none d-md-block d-lg-none" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
+            <button id="btnGroupDrop{{ index }}" type="button" class="btn btn-dark dropdown-toggle d-none d-sm-none d-md-block d-lg-none" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
                 <i class="fas fa-book-reader mr-2"></i>Read
             </button>
-            <button id="btnGroupDrop1" type="button" class="btn btn-dark dropdown-toggle d-block d-sm-block d-md-none" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
+            <button id="btnGroupDrop{{ index }}" type="button" class="btn btn-dark dropdown-toggle d-block d-sm-block d-md-none" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
                 <i class="fas fa-book-reader"></i>
             </button>
-            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+            <!-- FIXME: this keeps breaking the dropdown arrow to the next line
+            <button id="btnGroupDrop{{ index }}" type="button" class="btn btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Read online">
+                <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fas fa-book-reader mr-2"></i>Read online</span>
+                <span class="d-none d-sm-none d-md-block d-lg-none"><i class="fas fa-book-reader mr-2"></i>Read</span>
+                <span class="d-block d-sm-block d-md-none"><i class="fas fa-book-reader"></i></span>
+            </button> -->
+            <div class="dropdown-menu" aria-labelledby="btnGroupDrop{{ index }}">
                 <a href="https://ar5iv.org/abs/{{ paper.arxiv_id }}" target="_blank" role="button" class="btn btn-outline-light dropdown-item" data-bs-toggle="tooltip"
                 data-bs-placement="bottom" title="Read online on ar5iv">
                     <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fab fa-html5 mr-2"></i>Read online on ar5iv</span>
