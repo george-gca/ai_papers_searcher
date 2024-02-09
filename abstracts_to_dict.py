@@ -56,7 +56,7 @@ if __name__ == '__main__':
                         help='directory for saving the model')
     parser.add_argument('-i', '--ignore_arxiv_papers', action='store_true',
                         help='ignore papers from arXiv and without conference name when building paper vectors')
-    parser.add_argument('-y', '--year', type=int, default=datetime.date.today().year-5,
+    parser.add_argument('-y', '--year', type=int, default=datetime.date.today().year-6,
                         help='only keep papers from this year and later')
     args = parser.parse_args()
 
