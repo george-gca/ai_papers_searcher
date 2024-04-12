@@ -148,7 +148,7 @@ class PaperFinder:
 
         if '_' in self.papers[i].clean_title:
             title_without_underline_score = self._calc_title_score(
-                self.papers[i].title.replace('_', ' '),
+                self.papers[i].title.replace('-', ' ').replace('_', ' '),
                 self.papers[i].clean_title.replace('_', ' '),
                 keywords,
                 main_keywords_dict,
