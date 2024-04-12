@@ -40,9 +40,10 @@ class PaperFinder:
         self.paper_vectors: npt.ArrayLike = None
         self.similar_words: dict[str, list[tuple[float, str]]] = None
 
-    def _calc_score(
+    def _calc_title_score(
             self,
-            i: int,
+            title: str,
+            clean_title: str,
             keywords: tuple[str, ...],
             main_keywords_dict: dict[str, float],
             similar_words_dict: dict[str, float],
@@ -50,10 +51,9 @@ class PaperFinder:
             ngrams: set[str],
             search_str: None | str = None,
             ) -> float:
-        paper_title_split = self.papers[i].clean_title.split()
+        paper_title_split = clean_title.split()
         paper_title_counter = Counter(paper_title_split)
         title_score = 0
-        abstract_score = 0
 
         # searches for whole keywords in title
         title_score += sum(paper_title_counter[k] * v for k, v in main_keywords_dict.items() \
@@ -81,9 +81,9 @@ class PaperFinder:
                     # gives extra score since the keywords are the title
                     title_score += self.keyword_weight * len(keywords) * 5
 
-            if search_str is not None and len(search_str) > 0 and search_str in self.papers[i].title:
+            if search_str is not None and len(search_str) > 0 and search_str in title:
                 # gives extra score since the search string is in the title
-                title_score += len(self.papers[i].title) - (len(self.papers[i].title) - len(search_str))
+                title_score += len(title) - (len(title) - len(search_str))
 
         # searches for words similar to keywords in title
         title_score += sum(paper_title_counter[k] * v for k, v in similar_words_dict.items() \
@@ -92,6 +92,17 @@ class PaperFinder:
         # searches for keyword as part of word in title, weighted by how much of w is made of k
         title_score += sum(paper_title_counter[w] * v * len(k)/len(w) \
                             for k, v in big_kw.items() for w in paper_title_counter if k in w and len(k) < len(w))
+
+        return title_score
+
+    def _calc_abstract_score(
+            self,
+            i: int,
+            keywords: tuple[str, ...],
+            main_keywords_dict: dict[str, float],
+            similar_words_dict: dict[str, float],
+            ) -> float:
+        abstract_score = 0
 
         # searches in title and also abstract using weights given during training
         abstract_score += sum(self.papers[i].abstract_freq[self.abstract_dict[k]] * v \
@@ -111,7 +122,47 @@ class PaperFinder:
             for k, v in similar_words_dict.items() \
             if self.abstract_dict[k] in self.papers[i].abstract_freq)
 
-        return title_score + abstract_score
+        return abstract_score
+
+    def _calc_score(
+            self,
+            i: int,
+            keywords: tuple[str, ...],
+            main_keywords_dict: dict[str, float],
+            similar_words_dict: dict[str, float],
+            big_kw: dict[str, float],
+            ngrams: set[str],
+            search_str: None | str = None,
+            ) -> float:
+
+        title_score = self._calc_title_score(
+            self.papers[i].title,
+            self.papers[i].clean_title,
+            keywords,
+            main_keywords_dict,
+            similar_words_dict,
+            big_kw,
+            ngrams,
+            search_str,
+            )
+
+        if '_' in self.papers[i].clean_title:
+            title_without_underline_score = self._calc_title_score(
+                self.papers[i].title.replace('_', ' '),
+                self.papers[i].clean_title.replace('_', ' '),
+                keywords,
+                main_keywords_dict,
+                similar_words_dict,
+                big_kw,
+                ngrams,
+                search_str,
+                )
+        else:
+            title_without_underline_score = 0
+
+        abstract_score = self._calc_abstract_score(i, keywords, main_keywords_dict, similar_words_dict)
+
+        return max(title_score, title_without_underline_score) + abstract_score
 
     def _calc_regex_score(
             self,
