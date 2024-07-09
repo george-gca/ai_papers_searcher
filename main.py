@@ -245,7 +245,10 @@ def _recreate_url(url_str: str, conference: str, year: int, is_abstract: bool = 
 
         return f'https://www.ecva.net/papers/eccv_{year}/papers_ECCV/{url_type}/{url_str}{url_ext}'
 
-    elif conference_lower in {'iclr', 'neurips_workshop'}:
+    elif conference_lower in {'iclr', 'neurips_workshop'} or \
+        (conference_lower == 'neurips' and 2022 <= year <= 2023) or \
+        (conference_lower == 'icml' and year == 2024):
+
         if is_abstract:
             url_type = 'forum'
         else:
@@ -273,21 +276,12 @@ def _recreate_url(url_str: str, conference: str, year: int, is_abstract: bool = 
             return f'https://dl.acm.org/doi/abs/{url_str}'
 
     elif conference_lower == 'neurips':
-        if year == 2022:
-            if is_abstract:
-                url_type = 'forum'
-            else:
-                url_type = 'pdf'
-
-            return f'https://openreview.net/{url_type}?id={url_str}'
-
+        if is_abstract:
+            url_type = 'hash'
         else:
-            if is_abstract:
-                url_type = 'hash'
-            else:
-                url_type = 'file'
+            url_type = 'file'
 
-            return f'https://papers.nips.cc/paper/{year}/{url_type}/{url_str}'
+        return f'https://papers.nips.cc/paper/{year}/{url_type}/{url_str}'
 
     elif conference_lower == 'sigchi':
         return f'https://dl.acm.org/doi/abs/{url_str}'
