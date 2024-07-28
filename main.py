@@ -61,7 +61,7 @@ class PaperSearchResult:
     score: float
     title: str
     urls: list[str]
-    year: str
+    year: int
 
 
 # https://medium.com/swlh/how-to-host-your-flask-app-on-pythonanywhere-for-free-df8486eb6a42
@@ -98,8 +98,6 @@ if CONVERT_ABSTRACTS_TO_WORDS:
 
 def _create_paper_search_result(paper_id: int, score: float) -> PaperSearchResult:
     paper = _paper_finder.papers[paper_id]
-    conf = paper.conference
-    year = paper.year
     assert paper.title == _paper_finder.abstracts.iloc[paper_id].title
 
     paper_urls = _paper_finder.paper_urls.loc[_paper_finder.paper_urls.title == paper.title].urls.values
@@ -111,17 +109,20 @@ def _create_paper_search_result(paper_id: int, score: float) -> PaperSearchResul
     else:
         abstract = _abstract_idxs_to_words(_paper_finder.abstracts.iloc[paper_id].abstract)
 
+    abstract_url = _recreate_url_from_code(paper.abstract_url, paper.source_url, paper.conference, paper.year, True)
+    pdf_url = _recreate_url_from_code(paper.pdf_url, paper.source_url, paper.conference, paper.year)
+
     return PaperSearchResult(
         abstract=abstract,
-        abstract_url=_recreate_url(paper.abstract_url, conf, year, True),
+        abstract_url=abstract_url,
         arxiv_id=paper.arxiv_id,
-        conference=conf,
+        conference=paper.conference,
         identification=paper_id,
-        pdf_url=_recreate_url(paper.pdf_url, conf, year),
+        pdf_url=pdf_url,
         score=score,
         title=paper.title,
         urls=paper_urls,
-        year=year,
+        year=paper.year,
         )
 
 
@@ -284,6 +285,92 @@ def _recreate_url(url_str: str, conference: str, year: int, is_abstract: bool = 
         return f'https://papers.nips.cc/paper/{year}/{url_type}/{url_str}'
 
     elif conference_lower == 'sigchi':
+        return f'https://dl.acm.org/doi/abs/{url_str}'
+
+    return url_str
+
+
+def _recreate_url_from_code(url_str: str, code: int, conference: str, year: int, is_abstract: bool = False) -> str:
+    if url_str is None or len(url_str) == 0 or url_str.startswith(('http://', 'https://')):
+        return url_str
+
+    if code < 0:
+        return _recreate_url(url_str, conference, year, is_abstract)
+
+    conference_lower = conference.lower()
+    assert conference_lower in SUPPORTED_CONFERENCES, f'conference is {conference} and url_str is {url_str}'
+
+    if code == 1:
+        if year <= 2018:
+            return f'https://www.aaai.org/ocs/index.php/AAAI/AAAI{year % 2000}/paper/viewPaper/{url_str}'
+        else:
+            return f'https://ojs.aaai.org/index.php/AAAI/article/view/{url_str}'
+
+    # acl conferences
+    elif code == 2:
+        return f'https://aclanthology.org/{url_str}'
+
+    # arxiv
+    elif code == 10:
+        if is_abstract:
+            url_type = 'abs'
+            url_ext = ''
+        else:
+            url_type = 'pdf'
+            url_ext = '.pdf'
+
+        return f'https://arxiv.org/{url_type}/{url_str}{url_ext}'
+
+    # thecvf conferences
+    elif code == 9:
+        return f'https://openaccess.thecvf.com/{url_str}'
+
+    elif code == 3:
+        if is_abstract:
+            url_type = 'html'
+            url_ext = '.php'
+        else:
+            url_type = 'papers'
+            url_ext = '.pdf'
+
+        return f'https://www.ecva.net/papers/eccv_{year}/papers_ECCV/{url_type}/{url_str}{url_ext}'
+
+    elif code == 0:
+        if is_abstract:
+            url_type = 'forum'
+        else:
+            url_type = 'pdf'
+
+        return f'https://openreview.net/{url_type}?id={url_str}'
+
+    elif code == 6:
+        if is_abstract:
+            url_ext = '.html'
+        else:
+            url_ext = f'/{url_str.split("/")[1]}.pdf'
+
+        return f'http://proceedings.mlr.press/{url_str}{url_ext}'
+
+    elif code == 4:
+        return f'https://www.ijcai.org/proceedings/{year}/{url_str}'
+
+    elif code == 5:
+        if year == 2017:
+            return f'https://www.kdd.org/kdd{year}/papers/view/{url_str}'
+        elif year == 2018 or year == 2020:
+            return f'https://www.kdd.org/kdd{year}/accepted-papers/view/{url_str}'
+        else: # if year == 2021:
+            return f'https://dl.acm.org/doi/abs/{url_str}'
+
+    elif code == 7:
+        if is_abstract:
+            url_type = 'hash'
+        else:
+            url_type = 'file'
+
+        return f'https://papers.nips.cc/paper/{year}/{url_type}/{url_str}'
+
+    elif code == 8:
         return f'https://dl.acm.org/doi/abs/{url_str}'
 
     return url_str
