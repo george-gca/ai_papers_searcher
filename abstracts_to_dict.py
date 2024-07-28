@@ -16,14 +16,14 @@ def _save_object(name: str | Path, obj: object) -> None:
         f.write(optimized_pickled)
 
 
-def _load_abstracts(filename: str) -> None:
+def _load_abstracts(filename: str) -> pd.DataFrame:
         extensions = Path(filename).suffixes
         if '.csv' in extensions:
             abstracts: pd.DataFrame = pd.read_csv(filename, sep='|')
         elif '.feather' in extensions:
-            abstracts: pd.DataFrame = pd.read_feather(filename)
+            abstracts = pd.read_feather(filename)
         elif '.json' in extensions:
-            abstracts: pd.DataFrame = pd.read_json(filename)
+            abstracts = pd.read_json(filename)
 
         def remove_quotes(text: str) -> str:
             if (text.startswith('"') and text.endswith('"')) or (text.startswith("'") and text.endswith("'")):
@@ -34,7 +34,7 @@ def _load_abstracts(filename: str) -> None:
         return abstracts
 
 
-def _create_abstracts_dict(abstracts: pd.DataFrame) -> dict:
+def _create_abstracts_dict(abstracts: pd.DataFrame) -> tuple[list[str], dict[str, int]]:
     abstract_words = {w for _, abstract in abstracts.abstract.items() for w in abstract.split()}
     idx_to_word = list(abstract_words)
     idx_to_word.sort(key=lambda item: (len(item), item))
