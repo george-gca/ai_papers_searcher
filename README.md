@@ -6,6 +6,7 @@ Web app to search papers by keywords or similar papers. Based on [CVPR_paper_sea
 - [AI Papers Cleaner](https://github.com/george-gca/ai_papers_cleaner) - Extract text from papers PDFs and abstracts, and remove uninformative words
 - [AI Papers Search Tool](https://github.com/george-gca/ai_papers_search_tool) - Automatic paper clustering
 - this project - Web app to search papers by keywords or similar papers
+- [AI Conferences Info](https://github.com/george-gca/ai_conferences_info) - Contains the titles, abstracts, urls, and authors names extracted from the papers
 
 I also added support for more conferences in a single web app, customized it a little further, and hosted it on [PythonAnywhere](https://www.pythonanywhere.com/). You can see a running example [here](https://georgegca.pythonanywhere.com/).
 
