@@ -27,6 +27,12 @@
             <span class="d-none d-sm-none d-md-block d-lg-none"><i class="fab fa-mendeley mr-2"></i>Add to</span>
             <span class="d-block d-sm-block d-md-none"><i class="fab fa-mendeley"></i></span>
         </a>
+        <a href="https://www.zotero.org/save?q={{ paper.abstract_url }}" target="_blank" role="button"
+            class="btn btn-dark" aria-label="Add to Zotero">
+            <span class="d-none d-sm-none d-md-none d-lg-block"><i class="ai ai-zotero mr-2"></i>Add to Zotero</span>
+            <span class="d-none d-sm-none d-md-block d-lg-none"><i class="ai ai-zotero mr-2"></i>Add to</span>
+            <span class="d-block d-sm-block d-md-none"><i class="ai ai-zotero"></i></span>
+        </a>
         {% if paper.pdf_url and paper.pdf_url|length > 0 %}
         <a href="{{ paper.pdf_url }}" target="_blank" class="btn btn-dark" aria-label="Open PDF">
             <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fas fa-file-pdf mr-2"></i>Open PDF</span>
