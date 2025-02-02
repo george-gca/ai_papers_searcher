@@ -52,6 +52,11 @@
                 <span class="d-block d-sm-block d-md-none"><i class="fas fa-book-reader"></i></span>
             </button> -->
             <div class="dropdown-menu" aria-labelledby="btnGroupDrop{{ index }}">
+                <a href="https://arxiv.org/html/{{ paper.arxiv_id }}" target="_blank" role="button" class="btn btn-outline-light dropdown-item" data-bs-toggle="tooltip"
+                data-bs-placement="bottom" title="Read online on arXiv">
+                    <span class="d-none d-sm-none d-md-none d-lg-block"><i class="ai ai-arxiv mr-2"></i>Read online on arXiv</span>
+                    <span class="d-md-block d-lg-none"><i class="ai ai-arxiv mr-2"></i>Read on arXiv</span>
+                </a>
                 <a href="https://ar5iv.org/abs/{{ paper.arxiv_id }}" target="_blank" role="button" class="btn btn-outline-light dropdown-item" data-bs-toggle="tooltip"
                 data-bs-placement="bottom" title="Read online on ar5iv">
                     <span class="d-none d-sm-none d-md-none d-lg-block"><i class="fab fa-html5 mr-2"></i>Read online on ar5iv</span>
