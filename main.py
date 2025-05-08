@@ -39,6 +39,7 @@ SUPPORTED_CONFERENCES = {
     'icml',
     'ijcai',
     'ijcnlp',
+    'ijcv',
     'kdd',
     'naacl',
     'neurips',
@@ -48,6 +49,7 @@ SUPPORTED_CONFERENCES = {
     'siggraph',
     'siggraph-asia',
     'tacl',
+    'tpami',
     'wacv',
 }
 
