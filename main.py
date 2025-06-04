@@ -292,7 +292,7 @@ def _recreate_url(url_str: str, conference: str, year: int, is_abstract: bool = 
     elif conference_lower == 'sigchi' or conference_lower in {'siggraph', 'siggraph-asia'}:
         return f'https://dl.acm.org/doi/abs/{url_str}'
 
-    elif conference_lower in {'ijcv', 'tpami'}:
+    elif conference_lower in {'icra', 'ijcv', 'tpami'}:
         # use doi
         return f'https://doi.org/{url_str}'
 
