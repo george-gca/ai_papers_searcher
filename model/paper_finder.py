@@ -577,8 +577,8 @@ class PaperFinder:
 
     def load_abstracts(self, filename: str) -> None:
         extensions = Path(filename).suffixes
-        if '.csv' in extensions:
-            self.abstracts: pd.DataFrame = pd.read_csv(filename, sep='|')
+        if '.tsv' in extensions:
+            self.abstracts: pd.DataFrame = pd.read_csv(filename, sep='\t')
         elif '.feather' in extensions:
             self.abstracts: pd.DataFrame = pd.read_feather(filename)
         elif '.json' in extensions:
@@ -593,8 +593,8 @@ class PaperFinder:
 
     def load_urls(self, filename: str) -> None:
         extensions = Path(filename).suffixes
-        if '.csv' in extensions:
-            self.paper_urls: pd.DataFrame = pd.read_csv(filename, sep='|')
+        if '.tsv' in extensions:
+            self.paper_urls: pd.DataFrame = pd.read_csv(filename, sep='\t')
         elif '.feather' in extensions:
             self.paper_urls: pd.DataFrame = pd.read_feather(filename)
         elif '.json' in extensions:

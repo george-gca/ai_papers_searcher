@@ -18,8 +18,8 @@ def _save_object(name: str | Path, obj: object) -> None:
 
 def _load_abstracts(filename: str) -> pd.DataFrame:
         extensions = Path(filename).suffixes
-        if '.csv' in extensions:
-            abstracts: pd.DataFrame = pd.read_csv(filename, sep='|')
+        if '.tsv' in extensions:
+            abstracts: pd.DataFrame = pd.read_csv(filename, sep='\t')
         elif '.feather' in extensions:
             abstracts = pd.read_feather(filename)
         elif '.json' in extensions:

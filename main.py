@@ -37,6 +37,7 @@ SUPPORTED_CONFERENCES = {
     'iccv',
     'iclr',
     'icml',
+    'icra',
     'ijcai',
     'ijcnlp',
     'ijcv',
