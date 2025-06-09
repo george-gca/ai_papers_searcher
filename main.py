@@ -27,6 +27,7 @@ TITLE = 'AI'
 SUPPORTED_CONFERENCES = {
     'aaai',
     'acl',
+    'aistats',
     'arxiv',
     'coling',
     'cvpr',
@@ -51,6 +52,7 @@ SUPPORTED_CONFERENCES = {
     'siggraph-asia',
     'tacl',
     'tpami',
+    'uai',
     'wacv',
 }
 
@@ -253,7 +255,8 @@ def _recreate_url(url_str: str, conference: str, year: int, is_abstract: bool = 
 
     elif conference_lower in {'iclr', 'neurips_workshop'} or \
         (conference_lower == 'neurips' and 2022 <= year <= 2023) or \
-        (conference_lower == 'icml' and year == 2024):
+        (conference_lower == 'icml' and year == 2024) or \
+        (conference_lower == 'aistats' and year == 2025):
 
         if is_abstract:
             url_type = 'forum'
@@ -262,7 +265,7 @@ def _recreate_url(url_str: str, conference: str, year: int, is_abstract: bool = 
 
         return f'https://openreview.net/{url_type}?id={url_str}'
 
-    elif conference_lower == 'icml':
+    elif conference_lower in {'aistats', 'icml', 'uai'}:
         if is_abstract:
             url_ext = '.html'
         else:
